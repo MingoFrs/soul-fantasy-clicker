@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soul Harvest — Le Pacte Éternel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <div id="intro-bg"></div>
+  <div id="intro-content">
+    <div id="intro-runes">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
+    <div id="intro-orb">☽</div>
+    <h1 id="intro-title">SOUL HARVEST</h1>
+    <p id="intro-sub">Le Pacte Éternel des Ténèbres</p>
+    <button id="intro-btn">COMMENCER LE RITUEL</button>
+    <div id="intro-load-row">
+      <button id="intro-load-btn">📂 Charger une sauvegarde</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game-root" style="display:none">
+  <canvas id="particle-canvas"></canvas>
+  <div id="bg-fx"></div>
+  <div id="event-overlay"></div>
+  <div id="particles"></div>
+  <div id="lightning-layer"></div>
+  <div id="floaters"></div>
+  <div id="void-cracks"></div>
+  <div id="convergence-ring"></div>
+  <div id="screenshake-root">
+
+  <!-- EVENT BANNER -->
+  <div id="event-banner"><div id="eb-main"></div><div class="eb-sub" id="eb-sub"></div></div>
+  <div id="event-timer-bar"><div id="event-timer-fill"></div></div>
+
+  <!-- ECLIPSE HINT -->
+  <div id="eclipse-hint"></div>
+
+  <!-- COMBO DISPLAY -->
+  <div id="combo-display"></div>
+
+  <!-- INVASION BAR -->
+  <div id="invasion-bar-wrap">
+    <div id="invasion-label">👿 Démons à repousser</div>
+    <div id="invasion-track"><div id="invasion-fill"></div></div>
+    <div id="invasion-count"></div>
+  </div>
+
+  <!-- BOSS BAR -->
+  <div id="boss-bar-wrap">
+    <div id="boss-label"></div>
+    <div id="boss-track"><div id="boss-fill"></div></div>
+    <div id="boss-hp-text"></div>
+    <div id="boss-hint">Cliquez sur l'orbe pour attaquer !</div>
+  </div>
+
+  <!-- QUEST BAR -->
+  <div id="quest-bar-wrap">
+    <div id="quest-icon"></div>
+    <div id="quest-info">
+      <div id="quest-name"></div>
+      <div id="quest-track"><div id="quest-fill"></div></div>
+      <div id="quest-timer"></div>
+    </div>
+  </div>
+
+  <!-- MILESTONE POPUP -->
+  <div id="milestone-popup"></div>
+
+  <!-- PRESTIGE OVERLAY -->
+  <div id="prestige-overlay">
+    <div class="prestige-modal">
+      <h2>☽ PACTE DE SANG ☽</h2>
+      <p class="pm-sub">Renaître dans les ténèbres, plus puissant qu'avant</p>
+      <div id="pm-stats"></div>
+      <div id="pm-buffs" class="prestige-buffs"></div>
+      <div id="pm-unlocks"></div>
+      <p class="pm-warning">⚠ Toute progression sera perdue. Seuls les Pactes demeurent.</p>
+      <button class="btn-prestige" id="btn-do-prestige">SCELLER LE PACTE</button>
+      <button class="btn-cancel" id="btn-cancel-prestige">Reculer dans les ombres</button>
+    </div>
+  </div>
+
+  <!-- ASCENSION OVERLAY -->
+  <div id="ascension-overlay">
+    <div class="prestige-modal ascension-modal">
+      <h2 id="asc-title">🌑 ASCENSION ABYSSALE 🌑</h2>
+      <p class="pm-sub">Transcender le cycle de la mort</p>
+      <div id="asc-stats"></div>
+      <div id="asc-relic-preview"></div>
+      <p class="pm-warning">⚠ Tout prestige et progression sera effacé. Seule la relique demeure.</p>
+      <button class="btn-prestige asc-btn" id="btn-do-ascension">TRANSCENDER L'ABYSSE</button>
+      <button class="btn-cancel" id="btn-cancel-ascension">Pas encore…</button>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS OVERLAY -->
+  <div id="achievements-overlay">
+    <div class="ach-modal">
+      <div class="ach-header">
+        <h3>⚔ Trophées</h3>
+        <button id="btn-close-ach">✕</button>
+      </div>
+      <div id="ach-grid"></div>
+    </div>
+  </div>
+
+  <!-- SKILL TREE OVERLAY -->
+  <div id="skilltree-overlay">
+    <div class="st-modal">
+      <div class="st-header">
+        <h3>🌳 Arbre des Ténèbres</h3>
+        <div id="st-points">Points: <span id="st-pts">0</span></div>
+        <button id="btn-close-st">✕</button>
+      </div>
+      <div id="st-branches"></div>
+    </div>
+  </div>
+
+  <!-- STATS OVERLAY -->
+  <div id="stats-overlay">
+    <div class="stats-modal">
+      <div class="ach-header">
+        <h3>📊 Statistiques</h3>
+        <button id="btn-close-stats">✕</button>
+      </div>
+      <div id="stats-grid"></div>
+    </div>
+  </div>
+
+  <div id="app">
+    <header>
+      <div>
+        <div class="hdr-title">SOUL HARVEST <span id="prestige-count-badge"></span></div>
+        <div class="hdr-sub" id="hdr-sub">Le pacte éternel des ténèbres</div>
+      </div>
+      <div class="hdr-center">
+        <div id="save-indicator"></div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-total" id="hdr-total">0 âmes</div>
+        <div class="hdr-sps" id="hdr-sps">0/sec</div>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="soul-block">
+        <div class="soul-count" id="soul-count">0</div>
+        <span class="soul-label">âmes récoltées</span>
+      </div>
+
+      <div class="orb-wrapper" id="orb-wrapper">
+        <div class="orb-ring" id="ring1"></div>
+        <div class="orb-ring" id="ring2"></div>
+        <div class="orb-ring" id="ring3"></div>
+        <div id="orb-aura"></div>
+        <div class="orb" id="main-orb">
+          <span class="orb-glyph" id="orb-glyph">☽</span>
+        </div>
+      </div>
+
+      <div class="click-hint" id="click-hint">— invoquer les âmes —</div>
+      <div id="click-power-display"></div>
+
+      <div class="milestone-wrap">
+        <div class="milestone-lbl">
+          <span id="ml-label">Prochain seuil</span>
+          <span id="ml-pct">0%</span>
+        </div>
+        <div class="milestone-track"><div class="milestone-fill" id="ml-fill"></div></div>
+        <div id="ml-name"></div>
+      </div>
+
+      <div class="log-box" id="log-box">
+        <div class="log-entry">Les ténèbres vous accueillent, Seigneur des Âmes…</div>
+      </div>
+
+      <div id="save-btns">
+        <button onclick="manualSave()">💾 Sauv.</button>
+        <button onclick="loadGame()">📂 Charger</button>
+        <button onclick="openOverlay('achievements-overlay')">⚔ Trophées</button>
+        <button onclick="openOverlay('stats-overlay');renderStats()">📊 Stats</button>
+        <button onclick="openSkillTree()">🌳 Compétences</button>
+        <button onclick="confirmReset()" style="color:rgba(220,80,80,.6)">🗑</button>
+      </div>
+    </main>
+
+    <div id="sidebar">
+      <div class="tab-bar">
+        <div class="tab active" data-tab="gen">Générateurs</div>
+        <div class="tab" data-tab="upg">Amélior.</div>
+        <div class="tab" data-tab="blood">Pacte</div>
+        <div class="tab" data-tab="abyss">Abysse</div>
+      </div>
+      <div id="tab-gen" class="tab-content active-tab"></div>
+      <div id="tab-upg" class="tab-content"></div>
+      <div id="tab-blood" class="tab-content"></div>
+      <div id="tab-abyss" class="tab-content"></div>
+    </div>
+  </div>
+
+  </div><!-- end screenshake-root -->
+</div><!-- end game-root -->
+
+<script src="script.js"></script>
+</body>
+</html>
