@@ -89,7 +89,7 @@ const SKILL_TREE={
     title:'🌙 Voie Passive',color:'#b080d8',
     nodes:[
       {id:'s_p1',icon:'🌕',name:'Cycle Lunaire',   desc:'SPS +20%/rang',   cost:1,maxRank:5, effect:'global_sps',mult:.2},
-      {id:'s_p2',icon:'⚰️',name:'Légion des Morts',desc:'Tous bâtiments +5%/rang',cost:2,maxRank:5,effect:'all_build',mult:0.05},
+      {id:'s_p2',icon:'⚰️',name:'Légion des Morts',desc:'Tous bâtiments +5%/rang',cost:2,maxRank:5,effect:'all_build',mult:.05},
       {id:'s_p3',icon:'🌑',name:'Nuit Éternelle',  desc:'SPS ×2 la nuit',  cost:3,maxRank:1, effect:'night_bonus'},
       {id:'s_p4',icon:'🌌',name:'Abyssal Passif',  desc:'Abyss ×3/rang',   cost:4,maxRank:3, effect:'abyss_mult',mult:3},
     ]
@@ -97,10 +97,10 @@ const SKILL_TREE={
   active:{
     title:'⚔ Voie Active',color:'#e06060',
     nodes:[
-      {id:'s_a1',icon:'🗡️',name:'Maîtrise du Clic',desc:'Clic +2/rang',    cost:1,maxRank:5, effect:'click_add',add:2},
-      {id:'s_a2',icon:'💥',name:'Combo Maître',     desc:'Combo max +5/rang',cost:2,maxRank:4, effect:'combo_cap',add:5},
-      {id:'s_a3',icon:'🔥',name:'Ardeur de Sang',   desc:'Combo dure +2s/rang',cost:2,maxRank:3,effect:'combo_dur',add:2},
-      {id:'s_a4',icon:'⚡',name:'Décharge Totale',  desc:'Clic ×5 post-combo',cost:5,maxRank:1,effect:'combo_burst'},
+      {id:'s_a1',icon:'🗡️',name:'Maîtrise du Clic',desc:'Clic +2/rang',          cost:1,maxRank:5, effect:'click_add',add:2},
+      {id:'s_a2',icon:'💥',name:'Combo Maître',     desc:'Combo max +3 niveaux/rang',cost:2,maxRank:4,effect:'combo_cap',add:3},
+      {id:'s_a3',icon:'🔥',name:'Ardeur de Sang',   desc:'Fenêtre combo +0.08s/rang',cost:2,maxRank:3,effect:'combo_dur',add:.08},
+      {id:'s_a4',icon:'⚡',name:'Décharge Totale',  desc:'Reset combo = clic ×5 (1s)',cost:5,maxRank:1,effect:'combo_burst'},
     ]
   },
   hybrid:{
@@ -145,7 +145,7 @@ const ACHIEVEMENTS=[
   {id:'a_1m',   icon:'👑',name:'Seigneur Âmes',   desc:'Récolter 1 M âmes',       req:()=>gs.totalSouls>=1e6,       bonus:'SPS ×2',   effect:()=>{}},
   {id:'a_clicks100',icon:'🗡️',name:'100 Invocations',desc:'Cliquer 100 fois',    req:()=>gs.totalClicks>=100,      bonus:'Clic +2',  effect:()=>{}},
   {id:'a_clicks1k',icon:'⚡',name:'Frappe Incessante',desc:'Cliquer 1000 fois',  req:()=>gs.totalClicks>=1000,     bonus:'Clic ×1.2',effect:()=>{}},
-  {id:'a_combo10',icon:'🔥',name:'Combo x10',     desc:'Atteindre combo ×10',     req:()=>gs.maxComboReached>=10,   bonus:'Combo dure +1s',effect:()=>{}},
+  {id:'a_combo10',icon:'🔥',name:'Combo Max',     desc:'Atteindre le combo maximum',  req:()=>(gs.maxComboReached||0)>=getComboMax(),bonus:'Fenêtre combo +0.05s',effect:()=>{}},
   {id:'a_prestige1',icon:'🩸',name:'Premier Pacte',desc:'Premier prestige',       req:()=>gs.prestigeCount>=1,      bonus:'Prod ×1.3',effect:()=>{}},
   {id:'a_boss1',icon:'⚔️',name:'Chasseur',        desc:'Vaincre 1 boss',          req:()=>gs.bossesDefeated>=1,     bonus:'Boss HP -10%',effect:()=>{}},
   {id:'a_boss5',icon:'🏆',name:'Tueur de Titans', desc:'Vaincre 5 boss',          req:()=>gs.bossesDefeated>=5,     bonus:'Boss drop ×2',effect:()=>{}},
@@ -160,7 +160,7 @@ const QUEST_POOL=[
   {id:'q_souls',icon:'💰',name:'Collecte d\'Urgence',  gen:(s)=>({target:Math.max(500,s*5),  type:'souls',   time:60, reward_mult:3,   desc:'Récoltez '+fmt(Math.max(500,s*5))+' âmes en 60s'})},
   {id:'q_click',icon:'⚔️',name:'Frappe Rituelle',       gen:(s)=>({target:50+Math.floor(s/100),type:'clicks',  time:30, reward_mult:2.5, desc:'Cliquez '+(50+Math.floor(s/100))+' fois en 30s'})},
   {id:'q_idle', icon:'⏳',name:'Patience du Liche',     gen:(s)=>({target:Math.max(300,s*2), type:'idle_sps', time:45, reward_mult:4,   desc:'Accumulez '+fmt(Math.max(300,s*2))+' âmes passives en 45s'})},
-  {id:'q_combo',icon:'🔥',name:'Frénésie Maudite',      gen:(s)=>({target:5,                 type:'combo',   time:20, reward_mult:3.5, desc:'Maintenir combo ×5 pendant 20s'})},
+  {id:'q_combo',icon:'🔥',name:'Frénésie Maudite',      gen:(s)=>({target:5,                 type:'combo',   time:20, reward_mult:3.5, desc:'Maintenir combo LV3+ pendant 5s'})},
 ];
 
 // EVENTS pool
@@ -207,8 +207,9 @@ const DS=()=>({
   vfxFlags:{},
   milestonesReached:new Set(),
   currentTier:0,
-  // combo
+  // combo (v2)
   comboVal:0, comboTimer:0, maxComboReached:0,
+  _comboClickStreak:0, _lastClickTime:0,
   // resonance
   resonanceTimer:0, resonanceActive:false,
   // boss
@@ -405,8 +406,8 @@ function getEffClick(){
   let c=gs.clickPower;
   if(gs.activeEvent)c=Math.round(c*gs.activeEvent.clickM);
   c=Math.round(c*gs.clickMultBuff);
-  // combo mult
-  if(gs.comboVal>1)c=Math.round(c*gs.comboVal);
+  // combo mult (nerf'd: logarithmic, cap ×3)
+  if((gs.comboVal||0)>=1)c=Math.round(c*getComboMult(gs.comboVal));
   // crit
   const crit=PRESTIGE_UPS.find(u=>u.type==='mech_crit');
   if(crit){ const r=gs.prestigeRank[crit.id]||0;
@@ -418,45 +419,134 @@ function getEffClick(){
   return Math.max(1,c);
 }
 
-// ── COMBO ──────────────────────────────────────────────────
-function getComboMax(){ return 10+(gs.skillRank['s_a2']||0)*5; }
-function getComboDur(){ return 3+(gs.skillRank['s_a3']||0)*2+((gs.unlockedAch.has('a_combo10'))?1:0); }
-function tickCombo(dt){
-  if(gs.comboTimer>0){
-    gs.comboTimer-=dt;
-    if(gs.comboTimer<=0){
-      // combo reset
-      if((gs.skillRank['s_h4']||0)>0&&gs.comboVal>5){
-        // combo_sps: boost sps for 10s
-        gs.spsMultBuff=Math.max(gs.spsMultBuff,2);
-        gs.buffTimer=Math.max(gs.buffTimer,10);
-        addLog('♾️ Cycle Infini — SPS ×2 (10s)','ev-purple');
-      }
-      gs.comboVal=0; gs.comboTimer=0;
-      updateComboDisplay();
-    }
-  }
+// ── COMBO (v2 — skill-based, 3 CPS required, step every N clicks) ──────────
+//
+//  Rules:
+//  • Requires ≥3 clicks/sec to maintain (max inter-click gap = 1/3 s ≈ 333 ms)
+//  • Combo level increments every COMBO_STEP consecutive valid clicks
+//  • Multiplier is nerf'd: level 1→×1.2, max natural cap ×3 (not ×10)
+//  • decayTimer counts down from getComboDur(); if it hits 0 → reset
+//  • Visual: decay bar, warning at <30%, danger+shake at <15%
+//  • Skill s_a2 raises cap, s_a3 raises window duration, s_a4 fires burst on reset
+// ──────────────────────────────────────────────────────────────────────────
+
+// How many consecutive clicks to earn one combo level (5 base, reduced by skill)
+function getComboStep(){ return Math.max(2,5-Math.floor((gs.skillRank['s_a1']||0)/2)); }
+// Max combo level
+function getComboMax(){ return 5+(gs.skillRank['s_a2']||0)*3; }          // nerf: was 10+N*5
+// Window (seconds) the player has between each click to keep the combo alive
+// Must maintain ≥3 CPS → hard ceiling is 0.333s, but we give a small grace margin
+function getComboWindow(){ return 0.38+(gs.skillRank['s_a3']||0)*.08+((gs.unlockedAch.has('a_combo10'))?0.05:0); }
+// Multiplier per combo level (nerf: was flat +0.5, now logarithmic curve)
+// level 1→×1.2, level 3→×1.6, level 5→×2.0, max cap ×3.0
+function getComboMult(level){
+  if(level<=0)return 1;
+  const base=1+level*0.2;                     // linear: +0.2 per level
+  const cap=Math.min(3.0,1+(getComboMax()*0.2));
+  return Math.min(cap,base);
 }
-function registerClick(){
-  const cmax=getComboMax();
-  const cdur=getComboDur();
-  gs.comboVal=Math.min(cmax,gs.comboVal+.5);
-  gs.comboTimer=cdur;
-  if(gs.comboVal>gs.maxComboReached) gs.maxComboReached=gs.comboVal;
+
+function tickCombo(dt){
+  if(gs.comboTimer<=0)return;
+  gs.comboTimer=Math.max(0,gs.comboTimer-dt);
+  if(gs.comboTimer<=0){
+    // Cycle Infini skill: on intentional reset with high combo → sps boost
+    if((gs.skillRank['s_h4']||0)>0&&gs.comboVal>=3){
+      gs.spsMultBuff=Math.max(gs.spsMultBuff,1.8);
+      gs.buffTimer=Math.max(gs.buffTimer,10);
+      addLog('♾️ Cycle Infini — SPS ×1.8 (10s)','ev-purple');
+    }
+    resetCombo();
+  }
   updateComboDisplay();
 }
+
+function registerClick(){
+  const now=performance.now();
+  const gap=(now-(gs._lastClickTime||0))/1000;  // seconds since last click
+  gs._lastClickTime=now;
+
+  const window=getComboWindow();
+
+  // If gap is too large → break combo immediately
+  if(gs.comboVal>0&&gap>window){
+    resetCombo();
+    // Still start a fresh streak from 1 click
+    gs._comboClickStreak=1;
+    gs.comboTimer=window;
+    updateComboDisplay();
+    return;
+  }
+
+  // Accumulate streak clicks
+  gs._comboClickStreak=(gs._comboClickStreak||0)+1;
+  gs.comboTimer=window;   // refresh decay window
+
+  // Advance level every COMBO_STEP valid clicks
+  const step=getComboStep();
+  if(gs._comboClickStreak>=step){
+    gs._comboClickStreak=0;
+    const newLevel=Math.min(getComboMax(),(gs.comboVal||0)+1);
+    if(newLevel>(gs.comboVal||0)){
+      gs.comboVal=newLevel;
+      // Small audio feedback on level-up
+      tone(330+newLevel*40,'sine',.07,.045);
+    }
+  }
+
+  if(gs.comboVal>(gs.maxComboReached||0)) gs.maxComboReached=gs.comboVal;
+  updateComboDisplay();
+}
+
+function resetCombo(){
+  // s_a4: Décharge Totale — brief ×5 click boost for 1s when a high combo resets
+  if((gs.skillRank['s_a4']||0)>0&&(gs.comboVal||0)>=3){
+    gs.clickMultBuff=Math.max(gs.clickMultBuff,5);
+    gs.buffTimer=Math.max(gs.buffTimer,1);
+    const orb=document.getElementById('main-orb');
+    if(orb){orb.classList.remove('surge');void orb.offsetWidth;orb.classList.add('surge');setTimeout(()=>orb.classList.remove('surge'),500);}
+  }
+  gs.comboVal=0; gs.comboTimer=0; gs._comboClickStreak=0;
+}
+
 function updateComboDisplay(){
   const el=document.getElementById('combo-display');
   if(!el)return;
-  if(gs.comboVal<1.5){ el.classList.remove('show'); return; }
+
+  const level=gs.comboVal||0;
+  if(level<1){
+    el.classList.remove('show','warning','danger');
+    return;
+  }
   el.classList.add('show');
+
+  const mult=getComboMult(level);
+  const window=getComboWindow();
+  const pct=gs.comboTimer>0?Math.min(100,(gs.comboTimer/window)*100):0;
+  const streak=gs._comboClickStreak||0;
+  const step=getComboStep();
+
+  // value & color
   const v=document.getElementById('combo-val');
   const m=document.getElementById('combo-mult');
-  if(v)v.textContent='×'+gs.comboVal.toFixed(1);
-  if(m)m.textContent='COMBO';
-  // color
-  const hue=gs.comboVal>8?'#ffdd44':gs.comboVal>5?'#ff9940':'#e06060';
-  el.style.color=hue;
+  const ck=document.getElementById('combo-clicks');
+  const fill=document.getElementById('combo-decay-fill');
+
+  const color=level>=getComboMax()?'#ffdd44':level>=3?'#ff9940':'#e06060';
+  if(v){ v.textContent='×'+mult.toFixed(1); v.style.color=color; }
+  if(m) m.textContent='COMBO LV'+level;
+  if(ck)ck.textContent=streak+'/'+step+' clics';
+
+  // Decay bar color: green→orange→red
+  let barColor;
+  if(pct>60)      barColor='rgba(100,200,80,.8)';
+  else if(pct>30) barColor='rgba(220,160,40,.9)';
+  else            barColor='rgba(220,60,60,.95)';
+  if(fill){ fill.style.width=pct.toFixed(1)+'%'; fill.style.background=barColor; }
+
+  // Warning / danger states
+  el.classList.toggle('warning',pct<30&&pct>=15);
+  el.classList.toggle('danger',pct<15);
 }
 
 // ── SCREENSHAKE ─────────────────────────────────────────────
@@ -721,7 +811,8 @@ function registerQuestClick(){
 }
 function tickQuestCombo(dt){
   if(!gs.activeQuest||gs.activeQuest.type!=='combo')return;
-  if(gs.comboVal>=5) gs.questProgress+=dt; else gs.questProgress=Math.max(0,gs.questProgress-.5*dt);
+  // Quest requires sustaining combo level ≥3 (= roughly 15+ consecutive clicks)
+  if((gs.comboVal||0)>=3) gs.questProgress+=dt; else gs.questProgress=Math.max(0,gs.questProgress-.5*dt);
 }
 function completeQuest(){
   const q=gs.activeQuest; if(!q)return;
@@ -1150,7 +1241,7 @@ function renderHUD(){
   if(gs.resonanceActive){ const cpd=document.getElementById('click-power-display');if(cpd)cpd.textContent='⚡ RÉSONANCE ×3'; }
   else { const cpd=document.getElementById('click-power-display');if(cpd&&cpd.textContent)cpd.textContent=''; }
 }
-function getEffectiveClickDisplay(){ return gs.comboVal>1?Math.round(gs.clickPower*gs.comboVal):gs.clickPower; }
+function getEffectiveClickDisplay(){ return (gs.comboVal||0)>=1?Math.round(gs.clickPower*getComboMult(gs.comboVal)):gs.clickPower; }
 
 function renderMilestone(){
   const all=MILESTONES_DATA.map(m=>m.souls);
