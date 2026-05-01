@@ -510,15 +510,15 @@ function resetCombo(){
 }
 
 function updateComboDisplay(){
-  const el=document.getElementById('combo-display');
+  const el=_el['combo-display']||document.getElementById('combo-display');
   if(!el)return;
 
   const level=gs.comboVal||0;
   if(level<1){
-    el.classList.remove('show','warning','danger');
+    if(el.classList.contains('show'))el.classList.remove('show','warning','danger');
     return;
   }
-  el.classList.add('show');
+  if(!el.classList.contains('show'))el.classList.add('show');
 
   const mult=getComboMult(level);
   const window=getComboWindow();
@@ -526,25 +526,19 @@ function updateComboDisplay(){
   const streak=gs._comboClickStreak||0;
   const step=getComboStep();
 
-  // value & color
-  const v=document.getElementById('combo-val');
-  const m=document.getElementById('combo-mult');
-  const ck=document.getElementById('combo-clicks');
-  const fill=document.getElementById('combo-decay-fill');
-
   const color=level>=getComboMax()?'#ffdd44':level>=3?'#ff9940':'#e06060';
-  if(v){ v.textContent='×'+mult.toFixed(1); v.style.color=color; }
-  if(m) m.textContent='COMBO LV'+level;
-  if(ck)ck.textContent=streak+'/'+step+' clics';
+  const v=_el['combo-val'];const m=_el['combo-mult'];const ck=_el['combo-clicks'];const fill=_el['combo-decay-fill'];
 
-  // Decay bar color: green→orange→red
+  if(v){ const t='×'+mult.toFixed(1); if(v.textContent!==t){v.textContent=t;v.style.color=color;} }
+  if(m){ const t='COMBO LV'+level; if(m.textContent!==t)m.textContent=t; }
+  if(ck){ const t=streak+'/'+step+' clics'; if(ck.textContent!==t)ck.textContent=t; }
+
   let barColor;
   if(pct>60)      barColor='rgba(100,200,80,.8)';
   else if(pct>30) barColor='rgba(220,160,40,.9)';
   else            barColor='rgba(220,60,60,.95)';
   if(fill){ fill.style.width=pct.toFixed(1)+'%'; fill.style.background=barColor; }
 
-  // Warning / danger states
   el.classList.toggle('warning',pct<30&&pct>=15);
   el.classList.toggle('danger',pct<15);
 }
@@ -1229,30 +1223,55 @@ function formatTime(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec
 document.getElementById('btn-close-stats').addEventListener('click',()=>closeOverlay('stats-overlay'));
 
 // ── RENDER ─────────────────────────────────────────────────
+// Cache element references once — never query by selector inside the game loop
+let _el={};
+function _cacheEls(){
+  ['soul-count','hdr-total','hdr-sps','prestige-count-badge','click-power-display',
+   'ml-fill','ml-label','ml-pct','ml-name',
+   'combo-display','combo-val','combo-mult','combo-clicks','combo-decay-fill']
+  .forEach(id=>{ _el[id]=document.getElementById(id); });
+}
+
 // HUD: only update changed values (track prev)
-let _prev={souls:'',sps:'',total:''};
+let _prev={souls:'',sps:'',total:'',prestige:null};
 function renderHUD(){
-  const sc=fmt(gs.souls); if(sc!==_prev.souls){ document.getElementById('soul-count').textContent=sc; _prev.souls=sc; }
-  const tot=fmt(gs.totalSouls)+' âmes'; if(tot!==_prev.total){ document.getElementById('hdr-total').textContent=tot; _prev.total=tot; }
+  const sc=fmt(gs.souls);
+  if(sc!==_prev.souls){ if(_el['soul-count'])_el['soul-count'].textContent=sc; _prev.souls=sc; }
+
+  const tot=fmt(gs.totalSouls)+' âmes';
+  if(tot!==_prev.total){ if(_el['hdr-total'])_el['hdr-total'].textContent=tot; _prev.total=tot; }
+
   const effS=getEffSps();
   const spsStr=fmt(effS)+'/s · +'+fmt(getEffectiveClickDisplay())+'/clic'+(gs.spsMultBuff!==1?' (×'+gs.spsMultBuff+')':'');
-  if(spsStr!==_prev.sps){ document.getElementById('hdr-sps').textContent=spsStr; _prev.sps=spsStr; }
-  if(gs.prestigeCount>0&&!_prev.prestige){ document.getElementById('prestige-count-badge').innerHTML=`<span class="prestige-badge">🩸 ×${gs.prestigeCount}</span>`; _prev.prestige=gs.prestigeCount; }
-  if(gs.resonanceActive){ const cpd=document.getElementById('click-power-display');if(cpd)cpd.textContent='⚡ RÉSONANCE ×3'; }
-  else { const cpd=document.getElementById('click-power-display');if(cpd&&cpd.textContent)cpd.textContent=''; }
+  if(spsStr!==_prev.sps){ if(_el['hdr-sps'])_el['hdr-sps'].textContent=spsStr; _prev.sps=spsStr; }
+
+  if(gs.prestigeCount>0&&gs.prestigeCount!==_prev.prestige){
+    if(_el['prestige-count-badge'])_el['prestige-count-badge'].innerHTML=`<span class="prestige-badge">🩸 ×${gs.prestigeCount}</span>`;
+    _prev.prestige=gs.prestigeCount;
+  }
+
+  const cpd=_el['click-power-display'];
+  if(cpd){
+    const txt=gs.resonanceActive?'⚡ RÉSONANCE ×3':'';
+    if(cpd.textContent!==txt)cpd.textContent=txt;
+  }
 }
 function getEffectiveClickDisplay(){ return (gs.comboVal||0)>=1?Math.round(gs.clickPower*getComboMult(gs.comboVal)):gs.clickPower; }
 
+// Pre-computed milestone souls array (never changes)
+const _MS_SOULS=MILESTONES_DATA.map(m=>m.souls);
+let _prevMsPct=-1;
 function renderMilestone(){
-  const all=MILESTONES_DATA.map(m=>m.souls);
-  const next=all.find(m=>m>gs.totalSouls)||all[all.length-1];
-  const prevIdx=all.indexOf(next)-1; const prev=prevIdx>=0?all[prevIdx]:0;
+  const next=_MS_SOULS.find(m=>m>gs.totalSouls)||_MS_SOULS[_MS_SOULS.length-1];
+  const prevIdx=_MS_SOULS.indexOf(next)-1; const prev=prevIdx>=0?_MS_SOULS[prevIdx]:0;
   const pct=Math.min(100,((gs.totalSouls-prev)/(next-prev))*100);
-  const fill=document.getElementById('ml-fill');if(fill)fill.style.width=pct.toFixed(1)+'%';
-  document.getElementById('ml-label').textContent='Seuil: '+fmt(next);
-  document.getElementById('ml-pct').textContent=pct.toFixed(0)+'%';
+  const pctR=Math.round(pct*10)/10; // round to 0.1 to limit updates
+  if(pctR===_prevMsPct)return; _prevMsPct=pctR;
+  if(_el['ml-fill'])_el['ml-fill'].style.width=pct.toFixed(1)+'%';
+  if(_el['ml-label'])_el['ml-label'].textContent='Seuil: '+fmt(next);
+  if(_el['ml-pct'])_el['ml-pct'].textContent=pct.toFixed(0)+'%';
   const mdata=MILESTONES_DATA.find(m=>m.souls===next);
-  const mn=document.getElementById('ml-name');if(mn&&mdata)mn.textContent=mdata.name;
+  if(_el['ml-name']&&mdata)_el['ml-name'].textContent=mdata.name;
 }
 const GLYPHS=['☽','⚔','🔥','💀','⭐','🌀','👁','∞'];
 function updateOrbGlyph(){ const t=Object.values(gs.owned).reduce((a,b)=>a+b,0); document.getElementById('orb-glyph').textContent=GLYPHS[Math.min(GLYPHS.length-1,Math.floor(t/20))]; }
@@ -1331,6 +1350,9 @@ function renderAbyssTab(){
 function fullRender(){
   renderHUD();renderMilestone();renderBuildings();renderUpgrades();renderPrestigeTab();renderAbyssTab();updateOrbGlyph();
   _prev.prestige=null;
+  // Rebuild fast-access maps used by the game loop
+  _rebuildBldMap();
+  _rebuildCostCache();
 }
 
 // ── BUY ACTIONS ────────────────────────────────────────────
@@ -1342,7 +1364,7 @@ function buyBuilding(b,el){
   document.getElementById('main-orb')?.classList.add('surge');setTimeout(()=>document.getElementById('main-orb')?.classList.remove('surge'),580);
   const rect=el.getBoundingClientRect();emitBurst(rect.left+rect.width/2,rect.top,7,'rgba(200,160,50,.75)');
   addLog(b.icon+' '+b.name+' ×'+(gs.owned[b.id]));
-  updateOrbGlyph(); triggerResonance(); renderBuildings(); renderPrestigeTab();
+  updateOrbGlyph(); triggerResonance(); renderBuildings(); _rebuildBldMap(); _costDirty=true; renderPrestigeTab();
 }
 function buyUpgrade(u,el){
   const rank=gs.upRank[u.id]||0;if(rank>=u.maxRank)return;
@@ -1366,53 +1388,112 @@ function buyPrestigeUp(u,el){
 }
 
 // ── MAIN LOOP ──────────────────────────────────────────────
-let lastTick=performance.now();
-// Throttle full DOM renders
-let _renderTick=0;
-function gameLoop(now){
-  const dt=Math.min((now-lastTick)/1000,.1);lastTick=now;
+// Architecture: logic runs every RAF frame (60fps), UI renders throttled at 15fps.
+// Building affordability uses a cached cost map, rebuilt only when dirty.
 
-  // Production
+let _lastNow       = performance.now();
+let _logicAcc      = 0;   // accumulator for logic sub-ticks (unused for now, kept for future)
+let _uiAcc         = 0;   // accumulator for UI throttle
+let _slowAcc       = 0;   // accumulator for slow checks (milestones, achievements)
+let _affordAcc     = 0;   // accumulator for building affordability check
+const UI_INTERVAL  = 1/15; // 15 fps for DOM updates
+const SLOW_INTERVAL= 0.5;  // every 0.5s for milestone/achievement checks
+const AFFORD_INTERVAL=0.2; // every 200ms for affordability
+
+// Pre-built map: buildingId → DOM element (rebuilt only on fullRender)
+let _bldMap = {};
+function _rebuildBldMap(){
+  _bldMap={};
+  document.querySelectorAll('.building[data-id]').forEach(el=>{ _bldMap[el.dataset.id]=el; });
+}
+
+// Cached cost map for affordability (never recomputed inside the loop unless dirty)
+let _costCache={};    // { id: cost }
+let _costDirty=true;
+function _rebuildCostCache(){
+  _costDirty=false;
+  BUILDINGS.forEach(b=>{ _costCache[b.id]=getBuildingCost(b); });
+}
+// Mark cost cache dirty whenever state changes that affects costs (buy, prestige upgrade)
+const _origMarkDirty=markDirty;
+markDirty=function(){ _origMarkDirty(); _costDirty=true; };
+
+// Late-game VFX reduction: disable DOM particles and void cracks above 1B souls
+let _lateGameVfxReduced=false;
+function checkLateGameVfx(){
+  const isLate=gs.totalSouls>=1e9;
+  if(isLate&&!_lateGameVfxReduced){
+    _lateGameVfxReduced=true;
+    // Reduce bg particles count
+    const pt=document.getElementById('particles');
+    if(pt){ const kids=[...pt.children]; kids.slice(14).forEach(k=>k.remove()); }
+    // Slow down convergence ring animation
+    document.querySelectorAll('.cring-rune').forEach(r=>{ r.style.animationDuration=parseFloat(r.style.animationDuration||'8')*2+'s'; });
+    // Cap canvas particles harder
+    PP.length=0;
+  }
+}
+
+function gameLoop(now){
+  const dt=Math.min((now-_lastNow)/1000, 0.1);
+  _lastNow=now;
+
+  // ── LOGIC (every frame, no DOM) ────────────────────────
   const effSps=getEffSps();
   const effAuto=gs.autoCps*gs.clickPower;
   const gain=(effSps+effAuto)*dt;
   if(gain>0){ gs.souls+=gain; gs.totalSouls+=gain; }
-  // Quest souls tracking
   if(gs.activeQuest?.type==='souls') gs.questProgress+=gain;
-
-  // Stats
   gs.playTime=(gs.playTime||0)+dt;
 
-  // Sub-systems
   tickEvents(dt);
   tickBuffs(dt);
   tickDC(dt);
   tickCombo(dt);
   tickResonance(dt);
   tickQuestCombo(dt);
-  tickCanvas(dt);
 
-  // Check quest
-  if(gs.activeQuest)tickQuest(dt);
+  if(gs.activeQuest) tickQuest(dt);
   else { _nextQuestIn-=dt; if(_nextQuestIn<=0)trySpawnQuest(); }
 
-  // Recalc only when dirty
-  if(_cache.dirty)recalcAll();
+  if(_cache.dirty) recalcAll();
 
-  // Milestones every 2s
-  _renderTick+=dt;
-  if(_renderTick>=0.5){ _renderTick=0; checkMilestones(); checkAchievements(); }
+  // ── CANVAS (every frame, cheap) ────────────────────────
+  tickCanvas(dt);
 
-  // HUD every frame (cheap)
-  renderHUD(); renderMilestone();
+  // ── SLOW CHECKS (every 0.5s) ───────────────────────────
+  _slowAcc+=dt;
+  if(_slowAcc>=SLOW_INTERVAL){
+    _slowAcc=0;
+    checkMilestones();
+    checkAchievements();
+    checkLateGameVfx();
+  }
 
-  // Cheap building affordability update
-  document.querySelectorAll('.building[data-id]').forEach(el=>{
-    const b=BUILDINGS.find(x=>x.id===el.dataset.id);if(!b)return;
-    if((b.prestigeReq&&gs.prestigeCount<b.prestigeReq)||(b.ascensionReq&&gs.ascensionCount<b.ascensionReq))return;
-    const cost=getBuildingCost(b);const can=gs.souls>=cost;
-    el.classList.toggle('can-afford',can);
-  });
+  // ── AFFORDABILITY (every 200ms, uses cost cache) ───────
+  _affordAcc+=dt;
+  if(_affordAcc>=AFFORD_INTERVAL){
+    _affordAcc=0;
+    if(_costDirty) _rebuildCostCache();
+    for(const id in _bldMap){
+      const el=_bldMap[id];
+      const b=BUILDINGS.find(x=>x.id===id); if(!b)continue;
+      if((b.prestigeReq&&gs.prestigeCount<b.prestigeReq)||(b.ascensionReq&&gs.ascensionCount<b.ascensionReq))continue;
+      const can=gs.souls>=(_costCache[id]||Infinity);
+      // Only touch the DOM if state changed
+      const was=el.classList.contains('can-afford');
+      if(can!==was) el.classList.toggle('can-afford',can);
+    }
+  }
+
+  // ── UI RENDER (throttled to 15fps) ─────────────────────
+  _uiAcc+=dt;
+  if(_uiAcc>=UI_INTERVAL){
+    _uiAcc=0;
+    renderHUD();
+    renderMilestone();
+    updateComboDisplay();
+  }
 
   requestAnimationFrame(gameLoop);
 }
@@ -1469,8 +1550,12 @@ function spawnBgParticles(){
 function startGame(load=false){
   const intro=document.getElementById('intro-screen');
   intro.classList.add('fade-out');
-  setTimeout(()=>{ intro.style.display='none'; document.getElementById('game-root').style.display=''; },800);
+  setTimeout(()=>{
+    intro.style.display='none';
+    document.getElementById('game-root').classList.add('visible');
+  },800);
   initCanvas(); spawnBgParticles();
+  _cacheEls();
   if(load){ if(!loadGame()){ recalcAll();updateOrbTier();fullRender(); } }
   else { recalcAll();updateOrbTier();fullRender(); }
   setInterval(()=>saveGame(true),30000);

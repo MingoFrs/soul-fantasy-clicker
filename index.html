@@ -6,6 +6,74 @@
 <title>Soul Harvest — Le Pacte Éternel</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* ===== SOUL HARVEST — CRITICAL LAYOUT (inline, highest priority) ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { width: 100vw; height: 100vh; overflow: hidden; }
+  body { width: 100vw; height: 100vh; overflow: hidden; background: #07050a; display: block; }
+
+  /* Intro: fixed overlay above everything */
+  #intro-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000; }
+
+  /* Game root: fixed, fills entire viewport */
+  #game-root {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 4;
+    visibility: hidden;
+  }
+  #game-root.visible { visibility: visible; }
+
+  /* Screenshake: absolute fill of game-root */
+  #screenshake-root {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+  }
+
+  /* App: centered grid, fills screenshake height */
+  #app {
+    width: 100%; height: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    grid-template-rows: 54px 1fr;
+    overflow: hidden;
+    position: relative;
+    z-index: 4;
+  }
+  header { grid-column: 1 / -1; overflow: hidden; }
+  #main {
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+  }
+  #sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .tab-content { flex: 1; overflow-y: auto; min-height: 0; }
+
+  /* Tablet */
+  @media (max-width: 720px) {
+    #app {
+      grid-template-columns: 1fr;
+      grid-template-rows: 48px 1fr 40vh;
+    }
+    header { min-height: 48px; }
+    #sidebar { height: 40vh; flex-shrink: 0; }
+  }
+  /* Mobile */
+  @media (max-width: 480px) {
+    #app { grid-template-rows: 44px 1fr 42vh; }
+    #sidebar { height: 42vh; }
+  }
+</style>
 </head>
 <body>
 
@@ -25,7 +93,7 @@
 </div>
 
 <!-- GAME -->
-<div id="game-root" style="display:none">
+<div id="game-root">
   <canvas id="particle-canvas"></canvas>
   <div id="bg-fx"></div>
   <div id="event-overlay"></div>
