@@ -25,24 +25,25 @@
   }
   #game-root.visible { visibility: visible; }
 
-  /* Screenshake: absolute fill of game-root */
+  /* Screenshake: fills game-root, wraps only #app */
   #screenshake-root {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    display: flex; flex-direction: column;
   }
 
-  /* App: centered grid, fills screenshake height */
+  /* App: fills screenshake, grid layout */
   #app {
+    position: absolute;
+    top: 0; left: 0;
     width: 100%; height: 100%;
     max-width: 960px;
     margin: 0 auto;
+    right: 0;
     display: grid;
     grid-template-columns: 1fr 310px;
-    grid-template-rows: 54px 1fr;
+    grid-template-rows: 54px calc(100% - 54px);
     overflow: hidden;
-    position: relative;
     z-index: 4;
   }
   header { grid-column: 1 / -1; overflow: hidden; }
@@ -64,13 +65,13 @@
     #app {
       grid-template-columns: 1fr;
       grid-template-rows: 48px 1fr 40vh;
+      height: 100vh;
     }
     header { min-height: 48px; }
     #sidebar { height: 40vh; flex-shrink: 0; }
   }
-  /* Mobile */
   @media (max-width: 480px) {
-    #app { grid-template-rows: 44px 1fr 42vh; }
+    #app { grid-template-rows: 44px 1fr 42vh; height: 100vh; }
     #sidebar { height: 42vh; }
   }
 </style>
@@ -94,6 +95,8 @@
 
 <!-- GAME -->
 <div id="game-root">
+
+  <!-- Fixed background layers (position:fixed, don't affect layout) -->
   <canvas id="particle-canvas"></canvas>
   <div id="bg-fx"></div>
   <div id="event-overlay"></div>
@@ -102,39 +105,28 @@
   <div id="floaters"></div>
   <div id="void-cracks"></div>
   <div id="convergence-ring"></div>
-  <div id="screenshake-root">
 
-  <!-- EVENT BANNER -->
+  <!-- Fixed HUD elements (position:fixed, don't affect layout) -->
   <div id="event-banner"><div id="eb-main"></div><div class="eb-sub" id="eb-sub"></div></div>
   <div id="event-timer-bar"><div id="event-timer-fill"></div></div>
-
-  <!-- ECLIPSE HINT -->
   <div id="eclipse-hint"></div>
-
-  <!-- COMBO DISPLAY -->
   <div id="combo-display">
     <span id="combo-val"></span>
     <span id="combo-mult">COMBO</span>
     <span id="combo-clicks"></span>
     <div id="combo-decay-bar"><div id="combo-decay-fill"></div></div>
   </div>
-
-  <!-- INVASION BAR -->
   <div id="invasion-bar-wrap">
     <div id="invasion-label">👿 Démons à repousser</div>
     <div id="invasion-track"><div id="invasion-fill"></div></div>
     <div id="invasion-count"></div>
   </div>
-
-  <!-- BOSS BAR -->
   <div id="boss-bar-wrap">
     <div id="boss-label"></div>
     <div id="boss-track"><div id="boss-fill"></div></div>
     <div id="boss-hp-text"></div>
     <div id="boss-hint">Cliquez sur l'orbe pour attaquer !</div>
   </div>
-
-  <!-- QUEST BAR -->
   <div id="quest-bar-wrap">
     <div id="quest-icon"></div>
     <div id="quest-info">
@@ -143,9 +135,10 @@
       <div id="quest-timer"></div>
     </div>
   </div>
-
-  <!-- MILESTONE POPUP -->
   <div id="milestone-popup"></div>
+
+  <!-- Screenshake wraps only #app -->
+  <div id="screenshake-root">
 
   <!-- PRESTIGE OVERLAY -->
   <div id="prestige-overlay">
@@ -223,7 +216,7 @@
       </div>
     </header>
 
-    <main id="main">
+    <main id="main" style="min-height:0;overflow-y:auto;">
       <div class="soul-block">
         <div class="soul-count" id="soul-count">0</div>
         <span class="soul-label">âmes récoltées</span>
@@ -260,12 +253,13 @@
         <button onclick="loadGame()">📂 Charger</button>
         <button onclick="openOverlay('achievements-overlay')">⚔ Trophées</button>
         <button onclick="openOverlay('stats-overlay');renderStats()">📊 Stats</button>
-        <button onclick="openSkillTree()">🌳 Compétences</button>
+        <button onclick="openSkillTree()">🌳 Compét.</button>
+        <button onclick="openSettings()">⚙ Params</button>
         <button onclick="confirmReset()" style="color:rgba(220,80,80,.6)">🗑</button>
       </div>
     </main>
 
-    <div id="sidebar">
+    <div id="sidebar" style="min-height:0;overflow:hidden;display:flex;flex-direction:column;">
       <div class="tab-bar">
         <div class="tab active" data-tab="gen">Générateurs</div>
         <div class="tab" data-tab="upg">Amélior.</div>
