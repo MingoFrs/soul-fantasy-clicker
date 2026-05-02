@@ -1396,8 +1396,13 @@ function openSettings(){
         <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:rgba(180,140,80,.32);text-transform:uppercase;padding-bottom:5px;border-bottom:1px solid rgba(150,100,50,.15);margin-bottom:9px;">Crédits</div>
         <div style="font-size:11px;color:rgba(180,140,80,.4);font-style:italic;line-height:1.8;text-align:center;">
           <div style="font-family:'Cinzel',serif;font-size:13px;color:rgba(200,160,80,.6);margin-bottom:4px;">SOUL HARVEST</div>
-          Conception & développement<br><span style="color:rgba(200,160,80,.55);">Erwan</span><br><br>
+          Conception & développement<br><span style="color:rgba(200,160,80,.55);">MingoFrs</span><br><br>
           HTML · CSS · JavaScript<br><span style="color:rgba(180,130,60,.35);font-size:10px;">v5.0 — Le Pacte Éternel</span>
+        </div>
+        <div style="border-top:1px solid rgba(150,100,50,.15);padding-top:10px;margin-top:10px;text-align:center;">
+          <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:rgba(180,140,80,.32);text-transform:uppercase;margin-bottom:8px;">Testeur officiel</div>
+          <div style="color:rgba(220,180,80,.75);font-family:'Cinzel',serif;font-size:13px;">⚔ Tom</div>
+          <div style="font-size:10px;color:rgba(180,140,80,.35);font-style:italic;margin-top:3px;"> — briseur de bugs</div>
         </div>
       </div>
     </div>`;
@@ -1760,3 +1765,339 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(ib)ib.addEventListener('click',()=>startGame(false));
   if(ilb)ilb.addEventListener('click',()=>startGame(true));
 });
+
+// ══════════════════════════════════════════════════════════
+//  ADMIN PANEL — accès via Paramètres, protégé par mot de passe
+//  Le déverrouillage est purement en mémoire (non sauvegardé).
+// ══════════════════════════════════════════════════════════
+let _adminUnlocked = false; // reset à chaque session
+
+const _ADMIN_CSS = `
+  #admin-panel-overlay {
+    display:none;position:fixed;inset:0;z-index:500;
+    background:rgba(0,0,0,.92);align-items:center;justify-content:center;
+  }
+  #admin-panel-overlay.open { display:flex; }
+  #admin-panel-box {
+    background:linear-gradient(160deg,#0a0318 0%,#130720 50%,#08020f 100%);
+    border:1px solid rgba(160,60,220,.5);border-radius:10px;padding:18px;
+    width:330px;max-height:88vh;overflow-y:auto;
+    box-shadow:0 0 40px rgba(100,20,160,.55),inset 0 1px 0 rgba(200,120,255,.1);
+    scrollbar-width:thin;scrollbar-color:rgba(160,80,200,.4) transparent;
+  }
+  #admin-panel-box .ap-header {
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;padding-bottom:8px;
+    border-bottom:1px solid rgba(160,60,220,.3);
+  }
+  #admin-panel-box .ap-title {
+    font-family:'Cinzel',serif;font-size:14px;color:#c060f0;letter-spacing:2px;
+    text-shadow:0 0 10px rgba(160,60,200,.5);
+  }
+  #admin-panel-box .ap-close {
+    background:transparent;border:1px solid rgba(160,60,220,.3);border-radius:4px;
+    color:rgba(180,100,240,.6);padding:3px 8px;cursor:pointer;
+    font-family:'Cinzel',serif;font-size:11px;
+  }
+  #admin-panel-box .ap-close:hover { border-color:rgba(200,80,255,.6);color:#d080f0; }
+  #admin-panel-box h4 {
+    color:#e0a0ff;font-family:'Cinzel',serif;font-size:11px;
+    margin:10px 0 6px;letter-spacing:.12em;text-transform:uppercase;
+    border-bottom:1px solid rgba(160,60,220,.2);padding-bottom:4px;
+  }
+  #admin-panel-box h4:first-of-type { margin-top:0; }
+  .ap-row { display:flex;gap:5px;margin-bottom:5px;align-items:center;flex-wrap:wrap; }
+  .ap-row label { color:rgba(200,150,240,.7);font-size:10px;font-family:'Crimson Text',serif;flex:0 0 auto;min-width:82px; }
+  .ap-input {
+    flex:1;min-width:0;background:rgba(255,255,255,.05);
+    border:1px solid rgba(160,60,220,.3);color:#e0c0ff;font-size:11px;
+    padding:4px 6px;border-radius:4px;outline:none;font-family:monospace;
+  }
+  .ap-input:focus { border-color:rgba(200,80,255,.6); }
+  .ap-btn {
+    background:linear-gradient(135deg,#220840,#180630);
+    border:1px solid rgba(160,60,220,.4);color:#c060f0;font-size:10px;
+    padding:4px 9px;border-radius:4px;cursor:pointer;
+    font-family:'Cinzel',serif;letter-spacing:.06em;white-space:nowrap;
+    transition:all .15s;flex-shrink:0;
+  }
+  .ap-btn:hover { background:linear-gradient(135deg,#320a50,#260840);border-color:rgba(210,90,255,.6);box-shadow:0 0 10px rgba(150,50,200,.3); }
+  .ap-btn.ap-danger { border-color:rgba(200,60,60,.4);color:#f08080; }
+  .ap-btn.ap-danger:hover { background:linear-gradient(135deg,#380a0a,#2a0808);border-color:rgba(220,80,80,.6); }
+  .ap-btn.ap-green { border-color:rgba(60,200,100,.4);color:#80f0a0; }
+  .ap-btn.ap-green:hover { background:linear-gradient(135deg,#0a2418,#081a10); }
+  .ap-grid { display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px; }
+  .ap-select {
+    flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(160,60,220,.3);
+    color:#e0c0ff;font-size:10px;padding:4px 5px;border-radius:4px;outline:none;cursor:pointer;
+  }
+  .ap-select option { background:#130720;color:#e0c0ff; }
+  .ap-sep { height:1px;background:rgba(160,60,220,.15);margin:8px 0; }
+  #ap-status { color:#80f0a0;font-size:9px;font-family:monospace;margin-top:5px;min-height:14px; }
+  /* Bouton discret dans les paramètres */
+  #btn-open-admin {
+    margin-top:14px;padding-top:10px;border-top:1px solid rgba(150,100,50,.15);
+    text-align:center;
+  }
+  #btn-open-admin button {
+    background:transparent;border:1px solid rgba(100,60,140,.2);border-radius:4px;
+    color:rgba(120,80,160,.35);font-size:9px;font-family:'Cinzel',serif;
+    padding:4px 12px;cursor:pointer;letter-spacing:.1em;transition:all .2s;
+  }
+  #btn-open-admin button:hover { border-color:rgba(160,80,220,.4);color:rgba(180,100,220,.6); }
+`;
+
+function _injectAdminStyles(){
+  if(document.getElementById('admin-panel-styles'))return;
+  const s=document.createElement('style');s.id='admin-panel-styles';s.textContent=_ADMIN_CSS;
+  document.head.appendChild(s);
+}
+
+function _buildAdminPanel(){
+  if(document.getElementById('admin-panel-overlay'))return;
+  _injectAdminStyles();
+  const ov=document.createElement('div');
+  ov.id='admin-panel-overlay';
+  ov.innerHTML=`
+    <div id="admin-panel-box">
+      <div class="ap-header">
+        <span class="ap-title">⚙ Admin Panel</span>
+        <button class="ap-close" id="ap-close-btn">✕</button>
+      </div>
+
+      <h4>💀 Âmes</h4>
+      <div class="ap-row">
+        <label>Montant</label>
+        <input class="ap-input" id="ap-souls-input" type="number" value="1000000" min="0" step="1000">
+      </div>
+      <div class="ap-grid">
+        <button class="ap-btn" id="ap-add-souls">+ Ajouter</button>
+        <button class="ap-btn" id="ap-set-souls">= Fixer</button>
+        <button class="ap-btn ap-green" id="ap-souls-x10">× 10 actuelles</button>
+        <button class="ap-btn ap-danger" id="ap-souls-zero">Vider</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>🌳 Points de Compétence</h4>
+      <div class="ap-row">
+        <label>Quantité</label>
+        <input class="ap-input" id="ap-sp-input" type="number" value="10" min="1">
+      </div>
+      <div class="ap-grid">
+        <button class="ap-btn" id="ap-add-sp">+ Ajouter</button>
+        <button class="ap-btn" id="ap-set-sp">= Fixer</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>🩸 Points de Sang</h4>
+      <div class="ap-row">
+        <label>Quantité</label>
+        <input class="ap-input" id="ap-bp-input" type="number" value="50" min="1">
+      </div>
+      <div class="ap-grid">
+        <button class="ap-btn" id="ap-add-bp">+ Ajouter</button>
+        <button class="ap-btn" id="ap-set-bp">= Fixer</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>🌑 Essence du Néant</h4>
+      <div class="ap-row">
+        <label>Quantité</label>
+        <input class="ap-input" id="ap-ve-input" type="number" value="10" min="1">
+      </div>
+      <div class="ap-grid">
+        <button class="ap-btn" id="ap-add-ve">+ Ajouter</button>
+        <button class="ap-btn" id="ap-set-ve">= Fixer</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>⚡ Déclencher un Événement</h4>
+      <div class="ap-row">
+        <select class="ap-select" id="ap-event-sel">
+          <option value="eclipse">🩸 Éclipse de Sang</option>
+          <option value="invasion">👿 Invasion Démoniaque</option>
+          <option value="harvest">🌾 Moisson des Âmes</option>
+          <option value="storm">🌪️ Tempête de l'Oubli</option>
+          <option value="pact">🔮 Pacte Démoniaque</option>
+          <option value="titan">👁️ Résurrection du Titan</option>
+        </select>
+        <button class="ap-btn" id="ap-start-event">Lancer</button>
+        <button class="ap-btn ap-danger" id="ap-end-event">Stop</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>⚔ Invoquer un Boss</h4>
+      <div class="ap-row">
+        <select class="ap-select" id="ap-boss-sel">
+          <option value="b_lich">💀 Archonte Liche</option>
+          <option value="b_demon">👿 Seigneur Démon</option>
+          <option value="b_void">🕳️ Dévoreur du Néant</option>
+          <option value="b_titan">👁️ Titan Primordial</option>
+          <option value="b_abyss">🌑 Abyssal Éternel</option>
+        </select>
+        <button class="ap-btn" id="ap-spawn-boss">Invoquer</button>
+        <button class="ap-btn ap-green" id="ap-kill-boss">Tuer</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>🏚️ Bâtiments</h4>
+      <div class="ap-row">
+        <select class="ap-select" id="ap-bld-sel">
+          <option value="cultist">🕯️ Cultiste</option>
+          <option value="tomb">⚰️ Tombeau</option>
+          <option value="altar">🔮 Autel Noir</option>
+          <option value="crypt">🏚️ Crypte</option>
+          <option value="lich">💀 Liche</option>
+          <option value="portal">🌀 Portail</option>
+          <option value="void">🕳️ Fragment du Néant</option>
+          <option value="titan">👁️ Titan Primordial</option>
+          <option value="abyss">🌑 Gouffre Abyssal</option>
+          <option value="nexus">🔱 Nexus Abyssal</option>
+        </select>
+        <input class="ap-input" id="ap-bld-qty" type="number" value="10" min="1" style="max-width:55px">
+        <button class="ap-btn" id="ap-add-bld">+ Add</button>
+      </div>
+      <button class="ap-btn" id="ap-bld-all" style="width:100%;margin-bottom:5px;">⬆ +10 tous les bâtiments</button>
+      <div class="ap-sep"></div>
+
+      <h4>✨ Buffs temporaires</h4>
+      <div class="ap-grid">
+        <button class="ap-btn ap-green" id="ap-buff-sps">SPS ×10 (60s)</button>
+        <button class="ap-btn ap-green" id="ap-buff-click">Clic ×10 (60s)</button>
+        <button class="ap-btn ap-green" id="ap-godmode">GOD MODE (5min)</button>
+        <button class="ap-btn ap-danger" id="ap-buff-off">Stopper buffs</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>🌀 Prestige &amp; Ascension</h4>
+      <div class="ap-row">
+        <label>Prestige #</label>
+        <input class="ap-input" id="ap-prestige-input" type="number" value="1" min="0">
+        <button class="ap-btn" id="ap-set-prestige">Fixer</button>
+      </div>
+      <div class="ap-row">
+        <label>Ascension #</label>
+        <input class="ap-input" id="ap-asc-input" type="number" value="1" min="0">
+        <button class="ap-btn" id="ap-set-asc">Fixer</button>
+      </div>
+      <div class="ap-sep"></div>
+
+      <h4>💾 Sauvegarde</h4>
+      <div class="ap-grid">
+        <button class="ap-btn ap-green" id="ap-save">Sauvegarder</button>
+        <button class="ap-btn ap-danger" id="ap-nuke">RESET TOTAL</button>
+      </div>
+      <div id="ap-status"></div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  // Fermeture
+  document.getElementById('ap-close-btn').addEventListener('click',()=>ov.classList.remove('open'));
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');});
+
+  // Helpers internes
+  function apStatus(msg,color='#80f0a0'){
+    const el=document.getElementById('ap-status');if(!el)return;
+    el.style.color=color;el.textContent=msg;
+    clearTimeout(el._t);el._t=setTimeout(()=>{el.textContent='';},2500);
+  }
+  function apRefresh(){
+    if(typeof recalcAll==='function')recalcAll();
+    if(typeof fullRender==='function')fullRender();
+    if(typeof markDirty==='function')markDirty();
+    if(typeof updateOrbTier==='function')updateOrbTier();
+  }
+  function apNum(id){return parseFloat(document.getElementById(id)?.value)||0;}
+
+  // Âmes
+  document.getElementById('ap-add-souls').addEventListener('click',()=>{const v=apNum('ap-souls-input');gs.souls+=v;gs.totalSouls+=v;apRefresh();apStatus('+'+fmt(v)+' âmes');});
+  document.getElementById('ap-set-souls').addEventListener('click',()=>{const v=apNum('ap-souls-input');gs.souls=v;gs.totalSouls=Math.max(gs.totalSouls,v);apRefresh();apStatus('Âmes → '+fmt(v));});
+  document.getElementById('ap-souls-x10').addEventListener('click',()=>{gs.totalSouls+=gs.souls*9;gs.souls*=10;apRefresh();apStatus('× 10 → '+fmt(gs.souls));});
+  document.getElementById('ap-souls-zero').addEventListener('click',()=>{gs.souls=0;apRefresh();apStatus('Âmes vidées','#f08080');});
+
+  // Skill Points
+  document.getElementById('ap-add-sp').addEventListener('click',()=>{const v=apNum('ap-sp-input');gs._skillPoints=(gs._skillPoints||0)+v;apRefresh();const el=document.getElementById('st-pts');if(el)el.textContent=gs._skillPoints;apStatus('+'+v+' pts compétence');});
+  document.getElementById('ap-set-sp').addEventListener('click',()=>{const v=apNum('ap-sp-input');gs._skillPoints=v;apRefresh();const el=document.getElementById('st-pts');if(el)el.textContent=gs._skillPoints;apStatus('Pts compétence = '+v);});
+
+  // Blood Points
+  document.getElementById('ap-add-bp').addEventListener('click',()=>{const v=apNum('ap-bp-input');gs.bloodPoints=(gs.bloodPoints||0)+v;gs.totalBP=(gs.totalBP||0)+v;apRefresh();apStatus('+'+v+' pts de sang');});
+  document.getElementById('ap-set-bp').addEventListener('click',()=>{const v=apNum('ap-bp-input');gs.bloodPoints=v;gs.totalBP=Math.max(gs.totalBP||0,v);apRefresh();apStatus('Pts sang = '+v);});
+
+  // Void Essence
+  document.getElementById('ap-add-ve').addEventListener('click',()=>{const v=apNum('ap-ve-input');gs.voidEssence=(gs.voidEssence||0)+v;gs.totalVE=(gs.totalVE||0)+v;apRefresh();apStatus('+'+v+' essence');});
+  document.getElementById('ap-set-ve').addEventListener('click',()=>{const v=apNum('ap-ve-input');gs.voidEssence=v;gs.totalVE=Math.max(gs.totalVE||0,v);apRefresh();apStatus('Essence = '+v);});
+
+  // Events
+  document.getElementById('ap-start-event').addEventListener('click',()=>{
+    if(typeof endEvent==='function'&&gs.activeEvent)endEvent();
+    const evId=document.getElementById('ap-event-sel').value;
+    const evDef=EVENTS_POOL.find(e=>e.id===evId);if(!evDef)return;
+    gs.activeEvent=null;if(typeof startEvent==='function')startEvent(evDef);
+    apStatus('⚡ '+evDef.name+' lancé !');
+  });
+  document.getElementById('ap-end-event').addEventListener('click',()=>{if(typeof endEvent==='function'){endEvent();apStatus('Événement stoppé');}});
+
+  // Boss
+  document.getElementById('ap-spawn-boss').addEventListener('click',()=>{
+    if(gs.activeBoss){apStatus('Boss déjà actif !','#f08080');return;}
+    const bId=document.getElementById('ap-boss-sel').value;
+    if(typeof spawnBoss==='function'){spawnBoss(bId);apStatus('⚔ Boss invoqué !');}
+  });
+  document.getElementById('ap-kill-boss').addEventListener('click',()=>{
+    if(!gs.activeBoss){apStatus('Pas de boss actif','#f08080');return;}
+    if(typeof defeatBoss==='function'){gs.bossHp=0;defeatBoss();apStatus('✓ Boss éliminé');}
+  });
+
+  // Bâtiments
+  document.getElementById('ap-add-bld').addEventListener('click',()=>{const id=document.getElementById('ap-bld-sel').value;const qty=apNum('ap-bld-qty');gs.owned[id]=(gs.owned[id]||0)+qty;apRefresh();apStatus('+'+qty+' '+id);});
+  document.getElementById('ap-bld-all').addEventListener('click',()=>{BUILDINGS.forEach(b=>{gs.owned[b.id]=(gs.owned[b.id]||0)+10;});apRefresh();apStatus('+10 à tous les bâtiments');});
+
+  // Buffs
+  document.getElementById('ap-buff-sps').addEventListener('click',()=>{gs.spsMultBuff=Math.max(gs.spsMultBuff||1,10);gs.buffTimer=Math.max(gs.buffTimer||0,60);apRefresh();apStatus('SPS ×10 (60s)');});
+  document.getElementById('ap-buff-click').addEventListener('click',()=>{gs.clickMultBuff=Math.max(gs.clickMultBuff||1,10);gs.buffTimer=Math.max(gs.buffTimer||0,60);apRefresh();apStatus('Clic ×10 (60s)');});
+  document.getElementById('ap-godmode').addEventListener('click',()=>{gs.spsMultBuff=Math.max(gs.spsMultBuff||1,100);gs.clickMultBuff=Math.max(gs.clickMultBuff||1,100);gs.buffTimer=Math.max(gs.buffTimer||0,300);apRefresh();apStatus('🌟 GOD MODE (5min)','#ffe080');});
+  document.getElementById('ap-buff-off').addEventListener('click',()=>{gs.spsMultBuff=1;gs.clickMultBuff=1;gs.buffTimer=0;apRefresh();apStatus('Buffs arrêtés','#f08080');});
+
+  // Prestige / Ascension
+  document.getElementById('ap-set-prestige').addEventListener('click',()=>{const v=Math.floor(apNum('ap-prestige-input'));gs.prestigeCount=v;apRefresh();apStatus('Prestige = '+v);});
+  document.getElementById('ap-set-asc').addEventListener('click',()=>{const v=Math.floor(apNum('ap-asc-input'));gs.ascensionCount=v;apRefresh();apStatus('Ascension = '+v);});
+
+  // Save / Reset
+  document.getElementById('ap-save').addEventListener('click',()=>{if(typeof manualSave==='function'){manualSave();apStatus('💾 Sauvegardé !');}});
+  document.getElementById('ap-nuke').addEventListener('click',()=>{if(confirm('⚠ RESET TOTAL — effacer toute la progression ?'))if(typeof confirmReset==='function')confirmReset();});
+}
+
+function openAdminPanel(){
+  if(!_adminUnlocked){
+    const pwd=prompt('🔐 Accès restreint\nMot de passe requis :');
+    if(pwd===null)return; // annulé
+    if(pwd!=='Tom le male alpha'){
+      if(typeof showToast==='function')showToast('⛔ Mot de passe incorrect','red');
+      else alert('⛔ Mot de passe incorrect');
+      return;
+    }
+    _adminUnlocked=true;
+  }
+  // Ferme les paramètres proprement
+  const settingsOv=document.getElementById('settings-overlay');
+  if(settingsOv)settingsOv.style.display='none';
+  // Construit le panel si pas encore fait, puis ouvre
+  _buildAdminPanel();
+  document.getElementById('admin-panel-overlay').classList.add('open');
+}
+
+// Patch openSettings pour injecter le bouton Admin discret
+const _origOpenSettings=openSettings;
+window.openSettings=function(){
+  _origOpenSettings();
+  // Injecte le bouton une seule fois
+  const settingsOv=document.getElementById('settings-overlay');
+  if(!settingsOv||settingsOv.querySelector('#btn-open-admin'))return;
+  const wrap=document.createElement('div');
+  wrap.id='btn-open-admin';
+  wrap.innerHTML='<button id="ap-trigger-btn">⚙</button>';
+  settingsOv.querySelector('div').appendChild(wrap);
+  document.getElementById('ap-trigger-btn').addEventListener('click',openAdminPanel);
+};
+window.openAdminPanel=openAdminPanel;
