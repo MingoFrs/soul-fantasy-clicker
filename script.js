@@ -51,44 +51,44 @@ const RELIC_AP_COST_SCALING=1.65;
 //  DATA
 // ══════════════════════════════════════════════════════════
 const BUILDINGS=[
-  {id:'cultist',icon:'🕯️',name:'Cultiste',         desc:'Prières obscures',           base:20,       sps:.08},
-  {id:'tomb',   icon:'⚰️',name:'Tombeau',            desc:'Les morts travaillent',       base:200,      sps:.45},
-  {id:'altar',  icon:'🔮',name:'Autel Noir',          desc:"Rituel d'invocation",         base:1200,     sps:2},
-  {id:'crypt',  icon:'🏚️',name:'Crypte Ancienne',    desc:'Dort depuis des siècles',     base:6000,     sps:7},
-  {id:'lich',   icon:'💀',name:'Liche',              desc:'Nécromancien immortel',        base:25000,    sps:22},
-  {id:'portal', icon:'🌀',name:'Portail Démoniaque', desc:"Fissure vers l'Au-delà",      base:120000,   sps:80},
-  {id:'void',   icon:'🕳️',name:'Fragment du Néant',  desc:'Le vide absorbe tout',        base:700000,   sps:320},
-  {id:'titan',  icon:'👁️',name:'Titan Primordial',   desc:'Entité antérieure à la mort', base:5000000,  sps:1400},
-  {id:'abyss',  icon:'🌑',name:'Gouffre Abyssal',    desc:'Requiert Pacte de Sang',      base:25000000, sps:6000,  prestigeReq:1},
-  {id:'nexus',  icon:'🔱',name:'Nexus Abyssal',      desc:'Requiert Ascension',          base:300000000,sps:30000, ascensionReq:1},
+  {id:'cultist',icon:'🕯️',name:'Acolyte du Néant',    desc:'Litanies de corruption',           base:15,      sps:.1},
+  {id:'tomb',   icon:'⚰️',name:'Sépulcre Profané',     desc:'Les morts servent encore',       base:120,     sps:.6},
+  {id:'altar',  icon:'🔮',name:'Autel du Sacrilège',   desc:"Invocation du châtiment",         base:650,     sps:2.5},
+  {id:'crypt',  icon:'🏚️',name:'Ossuaire Maudit',      desc:'Dort depuis des éons',     base:2800,    sps:9},
+  {id:'lich',   icon:'💀',name:'Archiliché',             desc:'Mort-vivant transcendé',        base:10000,   sps:30},
+  {id:'portal', icon:'🌀',name:'Faille Abyssale',      desc:'Déchirure dans le voile',      base:40000,   sps:100},
+  {id:'void',   icon:'🕳️',name:'Éclat du Néant',         desc:'Le vide dévore tout',        base:200000,  sps:400},
+  {id:'titan',  icon:'👁️',name:'Colosse Déchu',        desc:'Entité née avant les dieux', base:1200000, sps:1800},
+  {id:'abyss',  icon:'🌑',name:'Gouffre Éternel',      desc:'Requiert Pacte de Sang',      base:5000000, sps:8000,  prestigeReq:1},
+  {id:'nexus',  icon:'🔱',name:'Nexus Primordial',     desc:'Requiert Ascension',          base:50000000,sps:40000, ascensionReq:1},
 ];
 
 const UPGRADES=[
-  {id:'c1',icon:'🗡️',name:'Lames Maudites',    desc:'+1 clic/rang',         cost:150,    maxRank:5,type:'click',      add:1,   req:()=>true,                     vfx:'none'},
-  {id:'c2',icon:'🔥',name:"Flammes de l'Âme",  desc:'×1.5 clic/rang',       cost:1200,   maxRank:4,type:'click_mult', mult:1.5,req:()=>gs.totalSouls>=600,       vfx:'fire'},
-  {id:'c3',icon:'⚡',name:'Foudre Noire',       desc:'+5 clic/rang',         cost:12000,  maxRank:5,type:'click',      add:5,   req:()=>gs.totalSouls>=4000,      vfx:'lightning'},
-  {id:'c4',icon:'🌑',name:'Éclipse Totale',     desc:'×2 clic/rang',         cost:100000, maxRank:3,type:'click_mult', mult:2,  req:()=>gs.totalSouls>=60000,     vfx:'none'},
-  {id:'b1',icon:'📜',name:'Grimoire Sanglant',  desc:'Cultistes ×2/rang',    cost:600,    maxRank:4,type:'building',   target:'cultist',mult:2,req:()=>gs.owned.cultist>=5, vfx:'none'},
-  {id:'b2',icon:'🦴',name:'Os des Anciens',     desc:'Tombeaux ×2/rang',     cost:5000,   maxRank:4,type:'building',   target:'tomb',   mult:2,req:()=>gs.owned.tomb>=3,    vfx:'none'},
-  {id:'b3',icon:'💫',name:'Étoile Mourante',    desc:'Autels ×2/rang',       cost:22000,  maxRank:4,type:'building',   target:'altar',  mult:2,req:()=>gs.owned.altar>=5,   vfx:'none'},
-  {id:'b4',icon:'🕸️',name:"Toile de l'Oubli",  desc:'Cryptes ×2/rang',      cost:90000,  maxRank:3,type:'building',   target:'crypt',  mult:2,req:()=>gs.owned.crypt>=5,   vfx:'none'},
-  {id:'b5',icon:'🧿',name:'Œil du Liche',       desc:'Liches ×2/rang',       cost:400000, maxRank:3,type:'building',   target:'lich',   mult:2,req:()=>gs.owned.lich>=3,    vfx:'none'},
-  {id:'b6',icon:'🌀',name:'Vortex Abyssal',     desc:'Portails ×2/rang',     cost:1800000,maxRank:3,type:'building',   target:'portal', mult:2,req:()=>gs.owned.portal>=3,  vfx:'none'},
-  {id:'g1',icon:'🌙',name:'Lune de Sang',       desc:'Prod ×1.3/rang',       cost:70000,  maxRank:5,type:'global',     mult:1.25,req:()=>gs.totalSouls>=35000,    vfx:'none'},
-  {id:'g2',icon:'🌑',name:'Soleil Noir',         desc:'Prod ×1.5/rang',       cost:600000, maxRank:4,type:'global',     mult:1.4,req:()=>gs.totalSouls>=300000,   vfx:'none'},
-  {id:'g3',icon:'✨',name:'Convergence',         desc:'Clic = 0.5% prod/sec', cost:20000,  maxRank:1,type:'synergy',             req:()=>gs.totalSouls>=10000,     vfx:'convergence'},
-  {id:'a1',icon:'⚙️',name:'Rituel Autonome',    desc:'Auto-clic 0.3/s/rang', cost:5000,   maxRank:5,type:'auto',       cps:.3,  req:()=>gs.owned.cultist>=5,       vfx:'none'},
-  {id:'a2',icon:'🤖',name:'Golem de Pierre',    desc:'Auto-clic 0.7/s/rang', cost:50000,  maxRank:4,type:'auto',       cps:.7,  req:()=>gs.totalSouls>=18000,     vfx:'none'},
-  {id:'v1',icon:'🕳️',name:'Fractures du Néant', desc:'Voids ×2/rang',        cost:5000000,maxRank:3,type:'building',   target:'void',   mult:2,req:()=>gs.owned.void>=2,     vfx:'void'},
-  {id:'v2',icon:'👁️',name:'Regard du Titan',    desc:'Titans ×2/rang',       cost:30000000,maxRank:3,type:'building',   target:'titan',  mult:2,req:()=>gs.owned.titan>=1,   vfx:'none'},
+  {id:'c1',icon:'🗡️',name:'Lames Maudites',    desc:'+1 clic/rang',         cost:80,     maxRank:5,type:'click',      add:1,   req:()=>true,                     vfx:'none'},
+  {id:'c2',icon:'🔥',name:"Flammes de l'Âme",  desc:'×1.5 clic/rang',       cost:600,    maxRank:4,type:'click_mult', mult:1.5,req:()=>gs.totalSouls>=300,       vfx:'fire'},
+  {id:'c3',icon:'⚡',name:'Foudre Noire',       desc:'+5 clic/rang',         cost:5000,   maxRank:5,type:'click',      add:5,   req:()=>gs.totalSouls>=1500,      vfx:'lightning'},
+  {id:'c4',icon:'🌑',name:'Éclipse Totale',     desc:'×2 clic/rang',         cost:40000,  maxRank:3,type:'click_mult', mult:2,  req:()=>gs.totalSouls>=20000,     vfx:'none'},
+  {id:'b1',icon:'📜',name:'Grimoire Sanglant',  desc:'Cultistes ×2/rang',    cost:300,    maxRank:4,type:'building',   target:'cultist',mult:2,req:()=>gs.owned.cultist>=5, vfx:'none'},
+  {id:'b2',icon:'🦴',name:'Os des Anciens',     desc:'Tombeaux ×2/rang',     cost:2000,   maxRank:4,type:'building',   target:'tomb',   mult:2,req:()=>gs.owned.tomb>=3,    vfx:'none'},
+  {id:'b3',icon:'💫',name:'Étoile Mourante',    desc:'Autels ×2/rang',       cost:9000,   maxRank:4,type:'building',   target:'altar',  mult:2,req:()=>gs.owned.altar>=5,   vfx:'none'},
+  {id:'b4',icon:'🕸️',name:"Toile de l'Oubli",  desc:'Cryptes ×2/rang',      cost:35000,  maxRank:3,type:'building',   target:'crypt',  mult:2,req:()=>gs.owned.crypt>=5,   vfx:'none'},
+  {id:'b5',icon:'🧿',name:'Œil du Liche',       desc:'Liches ×2/rang',       cost:140000, maxRank:3,type:'building',   target:'lich',   mult:2,req:()=>gs.owned.lich>=3,    vfx:'none'},
+  {id:'b6',icon:'🌀',name:'Vortex Abyssal',     desc:'Portails ×2/rang',     cost:600000, maxRank:3,type:'building',   target:'portal', mult:2,req:()=>gs.owned.portal>=3,  vfx:'none'},
+  {id:'g1',icon:'🌙',name:'Lune de Sang',       desc:'Prod ×1.3/rang',       cost:25000,  maxRank:5,type:'global',     mult:1.3,req:()=>gs.totalSouls>=12000,     vfx:'none'},
+  {id:'g2',icon:'🌑',name:'Soleil Noir',         desc:'Prod ×1.5/rang',       cost:200000, maxRank:4,type:'global',     mult:1.5,req:()=>gs.totalSouls>=100000,    vfx:'none'},
+  {id:'g3',icon:'✨',name:'Convergence',         desc:'Clic = 1% prod/sec',   cost:8000,   maxRank:1,type:'synergy',             req:()=>gs.totalSouls>=4000,      vfx:'convergence'},
+  {id:'a1',icon:'⚙️',name:'Rituel Autonome',    desc:'Auto-clic 0.5/s/rang', cost:2500,   maxRank:5,type:'auto',       cps:.5,  req:()=>gs.owned.cultist>=3,       vfx:'none'},
+  {id:'a2',icon:'🤖',name:'Golem de Pierre',    desc:'Auto-clic 1/s/rang',   cost:18000,  maxRank:4,type:'auto',       cps:1,   req:()=>gs.totalSouls>=6000,      vfx:'none'},
+  {id:'v1',icon:'🕳️',name:'Fractures du Néant', desc:'Voids ×2/rang',        cost:1500000,maxRank:3,type:'building',   target:'void',   mult:2,req:()=>gs.owned.void>=2,     vfx:'void'},
+  {id:'v2',icon:'👁️',name:'Regard du Titan',    desc:'Titans ×2/rang',       cost:8000000,maxRank:3,type:'building',   target:'titan',  mult:2,req:()=>gs.owned.titan>=1,    vfx:'none'},
 ];
 
 const PRESTIGE_UPS=[
-  {id:'p1',icon:'🩸',name:'Soif de Sang',      desc:'+8% prod/rang',           cost:2, maxRank:10,type:'global_mult',         mult:1.08},
+  {id:'p1',icon:'🩸',name:'Soif de Sang',      desc:'+12% prod/rang',          cost:2, maxRank:10,type:'global_mult',         mult:1.12},
   {id:'p2',icon:'💔',name:'Cœur Brisé',        desc:'+50% clic/rang',          cost:4, maxRank:5, type:'click_pmult',         mult:1.5},
   {id:'p3',icon:'⚰️',name:'Mémoire des Morts', desc:'Garder 5% âmes/rang',     cost:6, maxRank:4, type:'keep_pct',            mult:.05},
   {id:'p4',icon:'🌹',name:'Rose Maudite',       desc:'Bâtiments -8% coût/rang', cost:5, maxRank:5, type:'cost_reduce',         mult:.92},
-  {id:'p5',icon:'👑',name:"Couronne d'Ombre",   desc:'×1.8 prod global',        cost:20,maxRank:3, type:'global_mult',         mult:1.8},
+  {id:'p5',icon:'👑',name:"Couronne d'Ombre",   desc:'×2.5 prod global',        cost:20,maxRank:3, type:'global_mult',         mult:2.5},
   {id:'m1',icon:'💥',name:'Frappe Explosive',   desc:'1% chance clic ×100/rang',cost:8, maxRank:3, type:'mech_crit',           critChance:.01,critMult:100},
   {id:'m2',icon:'🔄',name:'Résonance Sombre',   desc:'Achat = clics ×3 (5s)',   cost:10,maxRank:1, type:'mech_resonance'},
   {id:'m3',icon:'🌀',name:'Vortex Temporel',    desc:'Eclipse double DC bonus', cost:12,maxRank:1, type:'mech_eclipse_dc'},
@@ -133,6 +133,34 @@ const RELICS=[
   {id:'r7',icon:'🩸',name:'Sang Primordial',   level:0,ap_cost_base:12,ap_cost_scaling:RELIC_AP_COST_SCALING,effect_scaling:{type:'additive_prestige',perLevel:.05}, desc:'Points de sang valent ×2 en upgrades prestige'},
   {id:'r8',icon:'🌑',name:'Noirceur Absolue',  level:0,ap_cost_base:16,ap_cost_scaling:RELIC_AP_COST_SCALING,effect_scaling:{type:'passive_global',perLevel:.06},    desc:'SPS ×10 pendant 30s à chaque milestone'},
 ];
+
+
+// ══════════════════════════════════════════════════════════
+//  BUILDING SYNERGIES
+//  Bonus croisés entre bâtiments (mult. dans recalcAll)
+// ══════════════════════════════════════════════════════════
+const BUILDING_SYNERGIES = [
+  // {from, to, mult, cap} — bonus = min(cap, owned[from] * mult)
+  {from:'cultist', to:'altar',  mult:0.008, cap:1.2,  label:'Acolytes → Autels'},
+  {from:'tomb',    to:'crypt',  mult:0.012, cap:1.5,  label:'Sépulcres → Ossuaires'},
+  {from:'altar',   to:'portal', mult:0.015, cap:1.8,  label:'Autels → Failles'},
+  {from:'crypt',   to:'lich',   mult:0.010, cap:1.6,  label:'Ossuaires → Archiliché'},
+  {from:'portal',  to:'void',   mult:0.020, cap:2.0,  label:'Failles → Néant'},
+  {from:'void',    to:'titan',  mult:0.030, cap:2.5,  label:'Néant → Coloss'},
+  {from:'lich',    to:'abyss',  mult:0.025, cap:2.2,  label:'Archilché → Gouffre'},
+  {from:'titan',   to:'nexus',  mult:0.040, cap:3.0,  label:'Coloss → Nexus'},
+];
+
+// Returns a {buildingId: synergyMult} map for display/debug
+function calcBuildingSynergies() {
+  const result = {};
+  BUILDING_SYNERGIES.forEach(s => {
+    const bonus = Math.min(s.cap, (gs.owned[s.from]||0) * s.mult);
+    if (!result[s.to]) result[s.to] = 1;
+    result[s.to] *= (1 + bonus);
+  });
+  return result;
+}
 
 const ORB_SKINS=[
   {id:'default', name:'Orbe Lunaire',     glyph:'☽', unlockSouls:0,        gradient:'radial-gradient(circle at 33% 33%,#2e1428,#150a18 55%,#0b060e)', border:'rgba(160,110,40,.35)'},
@@ -256,10 +284,12 @@ const DS=()=>({
   totalClicks:0,totalPurchases:0,totalDemonsKilled:0,
   playTime:0,sessionStart:Date.now(),
   lichSkullBonus:0,
-  _nextEvent:45+Math.random()*60,
+  _nextEvent:180+Math.random()*240,
   _nextDC:25+Math.random()*45,
   _skillPoints:0,
   _orbSkinOverride:null,
+  corruption:0,totalCorruption:0,
+  fusedRelics:[],fuseCount:0,
 });
 
 let gs=DS();
@@ -294,6 +324,8 @@ function toSave(){
     maxComboReached:gs.maxComboReached||0,
     lichSkullBonus:gs.lichSkullBonus||0,
     orbSkinOverride:gs._orbSkinOverride||null,
+    corruption:gs.corruption||0,totalCorruption:gs.totalCorruption||0,
+    fusedRelics:gs.fusedRelics||[],fuseCount:gs.fuseCount||0,
   });
 }
 
@@ -326,6 +358,8 @@ function fromSave(raw){
   s.maxComboReached=d.maxComboReached||0;
   s.lichSkullBonus=d.lichSkullBonus||0;
   s._orbSkinOverride=d.orbSkinOverride||null;
+  s.corruption=d.corruption||0; s.totalCorruption=d.totalCorruption||0;
+  s.fusedRelics=d.fusedRelics||[]; s.fuseCount=d.fuseCount||0;
   return s;
 }
 
@@ -385,14 +419,16 @@ function recalcAll(){
   if(gs.resonanceActive)cp*=3;
 
   let synFactor=0;
-  if((gs.upRank['g3']||0)>0)synFactor=0.005;
+  if((gs.upRank['g3']||0)>0)synFactor=0.01;
 
   let totalSps=0;
+  const _synMults=calcBuildingSynergies();
   BUILDINGS.forEach(b=>{
     if(b.prestigeReq&&gs.prestigeCount<b.prestigeReq)return;
     if(b.ascensionReq&&gs.ascensionCount<b.ascensionReq)return;
     let bsps=b.sps*(gs.owned[b.id]||0);
     UPGRADES.filter(u=>u.type==='building'&&u.target===b.id).forEach(u=>{bsps*=Math.pow(u.mult,gs.upRank[u.id]||0);});
+    if(_synMults[b.id]) bsps *= _synMults[b.id]; // synergy bonus
     totalSps+=bsps;
   });
 
@@ -404,6 +440,8 @@ function recalcAll(){
   Object.values(SKILL_TREE).forEach(b=>b.nodes.filter(n=>n.effect==='global_sps').forEach(n=>{gm*=1+(n.mult||0)*(gs.skillRank[n.id]||0);}));
   gm*=getAchBonus();
   if(gs.lichSkullBonus>0)gm*=(1+Math.min(1,gs.lichSkullBonus));
+  gm*=getCorruptionMult();
+  gm=applyFusedRelicEffects(gm);
   totalSps*=gm;
 
   if(synFactor>0)cp+=totalSps*synFactor;
@@ -412,6 +450,7 @@ function recalcAll(){
   let autoCps=0;
   UPGRADES.filter(u=>u.type==='auto').forEach(u=>{autoCps+=(u.cps||0)*(gs.upRank[u.id]||0);});
   if(gs.relics.includes('r5'))autoCps+=5;
+  autoCps+=getFusedRelicAutoCps();
 
   _cache.sps=totalSps; _cache.click=Math.max(1,Math.round(cp)); _cache.auto=autoCps; _cache.dirty=false;
   gs.clickPower=_cache.click; gs.sps=_cache.sps; gs.autoCps=_cache.auto;
@@ -436,10 +475,10 @@ function getCostReduce(){
   if(gs.relics.includes('r4'))r*=0.75;
   return r;
 }
-function getBuildingCost(b){return Math.ceil(b.base*Math.pow(1.22,gs.owned[b.id]||0)*getCostReduce());}
+function getBuildingCost(b){return Math.ceil(b.base*Math.pow(1.15,gs.owned[b.id]||0)*getCostReduce());}
 function getUpgradeCost(u){return Math.ceil(u.cost*Math.pow(3,gs.upRank[u.id]||0));}
 function getPrestigeCost(u){const r=gs.prestigeRank[u.id]||0; return Math.ceil(u.cost*Math.pow(r+1,2)*2*(gs.relics.includes('r7')?.5:1));}
-function calcBP(){return gs.totalSouls<1500000?0:Math.floor(Math.sqrt(gs.totalSouls/80000));}
+function calcBP(){return gs.totalSouls<500000?0:Math.floor(Math.sqrt(gs.totalSouls/50000));}
 function calcVE(){return gs.totalBP<10?0:Math.floor(Math.sqrt(gs.totalBP/10));}
 
 function getEffSps(){
@@ -924,7 +963,7 @@ function startEvent(ev){
     document.body.style.background='#080512';
     document.getElementById('click-hint').textContent='— tuez les démons —';
     const cap=(gs.invasionDemonsMax||20)+((gs.prestigeRank['m4']||0)*10);
-    gs.invasionDemonsLeft=cap;gs.invasionKills=0;
+    gs.invasionDemonsLeft=cap;gs.invasionKills=0;gs._invasionPactCount=0;gs._invasionPactMax=1+Math.floor(Math.random()*2);
     document.getElementById('invasion-bar-wrap')?.classList.add('show');
     updateInvasionBar();startDemonRunes();
     addLog('👿 Invasion — tuez les démons pour des bonus !','ev-purple');
@@ -962,7 +1001,7 @@ function tickEvents(dt){
   }
   gs._nextEvent-=dt;
   if(gs._nextEvent<=0){
-    gs._nextEvent=50+Math.random()*85;
+    gs._nextEvent=180+Math.random()*240;
     startEvent(EVENTS_POOL[Math.floor(Math.random()*EVENTS_POOL.length)]);
   }
 }
@@ -1003,7 +1042,7 @@ function startDemonRunes(){
   _demonInterval=setInterval(()=>{
     if(!gs.activeEvent||gs.activeEvent.id!=='invasion'){clearInterval(_demonInterval);_demonInterval=null;return;}
     if((gs.invasionDemonsLeft||0)<=0)return;
-    if(!_pactDialogOpen&&Math.random()<0.15){showDemonPactDialog();return;}
+    if(!_pactDialogOpen&&(gs._invasionPactCount||0)<(gs._invasionPactMax||1)&&Math.random()<0.08){showDemonPactDialog();return;}
     const r=document.createElement('div');r.className='demon-rune';
     r.textContent=runes[Math.floor(Math.random()*runes.length)];
     r.style.left=(8+Math.random()*82)+'%';r.style.top=(15+Math.random()*65)+'%';
@@ -1168,8 +1207,8 @@ function showDemonPactDialog(){
     </div>
   </div>`;
   document.body.appendChild(overlay);
-  overlay.querySelector('#pact-accept').addEventListener('click',()=>{overlay.remove();_pactDialogOpen=false;applyPactAccept(pact);});
-  overlay.querySelector('#pact-refuse').addEventListener('click',()=>{overlay.remove();_pactDialogOpen=false;applyPactRefuse(pact);});
+  overlay.querySelector('#pact-accept').addEventListener('click',()=>{overlay.remove();_pactDialogOpen=false;gs._invasionPactCount=(gs._invasionPactCount||0)+1;applyPactAccept(pact);});
+  overlay.querySelector('#pact-refuse').addEventListener('click',()=>{overlay.remove();_pactDialogOpen=false;gs._invasionPactCount=(gs._invasionPactCount||0)+1;applyPactRefuse(pact);});
 }
 function applyPactAccept(pact){
   const a=pact.accept;
@@ -1224,6 +1263,7 @@ function doPrestige(){
   const pc=gs.prestigeCount+1;
   const bp2=gs.bloodPoints+bp,tbp=gs.totalBP+bp;
   const prevTier=gs.currentTier,prevM=new Set(gs.milestonesReached);
+  const prevCorrupt=gs.corruption||0;const prevTotalCorrupt=gs.totalCorruption||0;
   const prevStats={
     totalClicks:gs.totalClicks,totalPurchases:gs.totalPurchases,
     totalDemonsKilled:gs.totalDemonsKilled,
@@ -1246,7 +1286,8 @@ function doPrestige(){
   gs.prestigeRank=pr;
   gs.skillRank=sk;
   gs._skillPoints=skPts;
-  gs.prestigeCount=pc;gs.bloodPoints=bp2;gs.totalBP=tbp;
+  gs.prestigeCount=pc;
+  gs.corruption=Math.max(0,(prevCorrupt||0)*0.7);gs.totalCorruption=prevTotalCorrupt||0;gs.bloodPoints=bp2;gs.totalBP=tbp;
   gs.souls=kS;gs.totalSouls=kS;gs.currentTier=prevTier;gs.milestonesReached=prevM;
   Object.assign(gs,prevStats);
   closeOverlay('prestige-overlay');
@@ -1284,7 +1325,7 @@ function openAscensionModal(){
 }
 
 function doAscension(){
-  if(gs.prestigeCount<5){showToast('Requiert 5 prestiges minimum','red');return;}
+  if(gs.prestigeCount<3){showToast('Requiert 3 prestiges minimum','red');return;}
   sfx.ascend();shake(true);
   const ve=calcVE();
   // Use the relic that was shown in the preview (pendingRelic), not a new random one
@@ -1298,6 +1339,7 @@ function doAscension(){
   const sk={...gs.skillRank};
   const skPts=(gs._skillPoints||0)+2;
   // Compute AP to award (based on VE gained this ascension)
+  const prevAscCorrupt=gs.corruption||0;const prevAscTotalCorrupt=gs.totalCorruption||0;
   const apGained=calcAscensionAP(ve);
   const prevAP=(gs.abyssPoints||0)+apGained;
   const prevTAP=(gs.totalAP||0)+apGained;
@@ -1311,6 +1353,7 @@ function doAscension(){
   PRESTIGE_UPS.forEach(u=>gs.prestigeRank[u.id]=0);
   Object.values(SKILL_TREE).forEach(b=>b.nodes.forEach(n=>gs.skillRank[n.id]=0));
   gs.ascensionCount=prevAsc;gs.voidEssence=prevVE;gs.totalVE=prevTVE;
+  gs.corruption=Math.max(0,(prevAscCorrupt||0)*0.5);gs.totalCorruption=prevAscTotalCorrupt||0;
   gs.relics=prevRelics;gs.unlockedAch=prevAch;
   gs.playTime=prevPT;gs.sessionStart=Date.now();
   gs.skillRank=sk;gs._skillPoints=skPts;
@@ -1530,7 +1573,9 @@ function renderBuildings(){
     }
     el.className='building'+(canAfford?' can-afford':'')+(locked?' locked':'')+(b.prestigeReq?' prestige-unlocked':'')+(b.ascensionReq?' abyss-unlocked':'');
     el.dataset.id=b.id;
-    el.innerHTML=`<div class="b-icon">${b.icon}</div><div class="b-info"><div class="b-name">${b.name}</div><div class="b-desc">${locked?'🔒 Requiert '+(b.prestigeReq?'prestige':'ascension'):b.desc}</div></div><div class="b-right"><span class="b-owned">${gs.owned[b.id]||0}</span><div class="b-cost">${locked?'🔒':fmt(cost)}</div></div>`;
+    const _bvSyn=calcBuildingSynergies();
+    const _synLabel=(!locked&&_bvSyn[b.id])?` <em style="color:rgba(160,220,120,.55);font-size:9px;">✦ syn ×${_bvSyn[b.id].toFixed(2)}</em>`:'';
+    el.innerHTML=`<div class="b-icon">${b.icon}</div><div class="b-info"><div class="b-name">${b.name}</div><div class="b-desc">${locked?'🔒 Requiert '+(b.prestigeReq?'prestige':'ascension'):b.desc}${_synLabel}</div></div><div class="b-right"><span class="b-owned">${gs.owned[b.id]||0}</span><div class="b-cost">${locked?'🔒':fmt(cost)}</div></div>`;
   });
 }
 
@@ -1564,7 +1609,7 @@ function makeUpEl(u,isP){
 function renderPrestigeTab(){
   const tab=document.getElementById('tab-blood');if(!tab)return;
   tab.innerHTML='';
-  const bp=calcBP(),req=1500000;
+  const bp=calcBP(),req=500000;
   const ib=document.createElement('div');ib.className='prestige-info-box';
   ib.innerHTML=`<div class="pi-row"><span>Points de Sang</span><span class="pi-val">🩸 ${gs.bloodPoints}</span></div><div class="pi-row"><span>Prochains</span><span class="pi-val">🩸 +${bp}</span></div><div class="pi-row"><span>Prestiges</span><span class="pi-val">× ${gs.prestigeCount}</span></div><div class="pi-row"><span>Points compétence</span><span class="pi-val">⭐ ${gs._skillPoints||0}</span></div>`;
   tab.appendChild(ib);
@@ -1590,10 +1635,21 @@ function renderAbyssTab(){
   tab.innerHTML='';
   const ve=calcVE();
   const ap=gs.abyssPoints||0;
+  const corruptTier=getCorruptionTier();
+  const corruptNames=['Stable','Perturbée','Instable','Dangereuse','Abyssale'];
+  const corruptColors=['rgba(180,140,80,.5)','rgba(220,180,60,.7)','rgba(240,120,40,.8)','rgba(220,60,60,.9)','rgba(180,40,200,1)'];
   const ib=document.createElement('div');ib.className='prestige-info-box abyss-info-box';
-  ib.innerHTML=`<div class="pi-row"><span>Essence du Vide</span><span class="pi-val">🌑 ${gs.voidEssence}</span></div><div class="pi-row"><span>Prochaine ascension</span><span class="pi-val">🌑 +${ve}</span></div><div class="pi-row"><span>Ascensions</span><span class="pi-val">× ${gs.ascensionCount}</span></div><div class="pi-row"><span>Reliques</span><span class="pi-val">💎 ${gs.relics.length}/${RELICS.length}</span></div><div class="pi-row"><span>Abyss Points (AP)</span><span class="pi-val">🌌 ${ap}</span></div>`;
+  ib.innerHTML=`<div class="pi-row"><span>Essence du Vide</span><span class="pi-val">🌑 ${gs.voidEssence}</span></div><div class="pi-row"><span>Prochaine ascension</span><span class="pi-val">🌑 +${ve}</span></div><div class="pi-row"><span>Ascensions</span><span class="pi-val">× ${gs.ascensionCount}</span></div><div class="pi-row"><span>Reliques</span><span class="pi-val">💎 ${gs.relics.length}/${RELICS.length}</span></div><div class="pi-row"><span>Abyss Points (AP)</span><span class="pi-val">🌌 ${ap}</span></div><div class="pi-row" style="border-top:1px solid rgba(150,100,50,.15);margin-top:4px;padding-top:4px;"><span>☠ Corruption</span><span class="pi-val" style="color:${corruptColors[corruptTier]}">${(gs.corruption||0).toFixed(1)}% — ${corruptNames[corruptTier]}</span></div><div class="pi-row"><span>Bonus corruption</span><span class="pi-val">+${Math.round((gs.corruption||0)*1.8)}% prod / −${(getCorruptionInstability()*100).toFixed(0)}% stabilité</span></div>`;
   tab.appendChild(ib);
-  const req=5;
+  if((gs.corruption||0)>0){
+    const clBtn=document.createElement('button');clBtn.className='btn-open-prestige';clBtn.style.cssText='margin-top:6px;background:rgba(40,10,80,.4);border-color:rgba(140,60,200,.4);color:#c080e0;font-size:10px;';
+    const cleanCost=Math.ceil(Math.max(1,(gs.corruption||0)*0.4));
+    clBtn.innerHTML='✨ Purifier −25 Corruption ('+cleanCost+' AP)';
+    clBtn.disabled=(gs.abyssPoints||0)<cleanCost;
+    clBtn.addEventListener('click',()=>{cleanseCorruption(25);renderAbyssTab();});
+    tab.appendChild(clBtn);
+  }
+  const req=3;
   if(gs.prestigeCount<req){const r=document.createElement('div');r.className='prestige-req';r.textContent='Requiert '+req+' prestiges ('+gs.prestigeCount+'/'+req+')';tab.appendChild(r);}
   const btn=document.createElement('button');btn.className='btn-open-prestige btn-open-asc';
   btn.innerHTML=gs.prestigeCount>=req?'🌑 Ascension Abyssale (+'+ve+' Essence)':'🌑 Ascension indisponible';
@@ -1616,8 +1672,6 @@ function renderAbyssTab(){
 // ══════════════════════════════════════════════════════════
 //  BUILDING VISUALS — Cookie Clicker style rows
 // ══════════════════════════════════════════════════════════
-
-// How many icons to show per building (capped for perf)
 function getBuildingVisualCount(owned) {
   if(owned <= 0) return 0;
   if(owned <= 10) return owned;
@@ -1626,29 +1680,26 @@ function getBuildingVisualCount(owned) {
   return Math.min(50, 33 + Math.floor((owned - 150) / 20));
 }
 
-// Density tier label
 function getBuildingDensityClass(owned) {
   if(owned >= 100) return 'bv-tier4';
-  if(owned >= 50) return 'bv-tier3';
-  if(owned >= 20) return 'bv-tier2';
-  if(owned >= 5)  return 'bv-tier1';
+  if(owned >= 50)  return 'bv-tier3';
+  if(owned >= 20)  return 'bv-tier2';
+  if(owned >= 5)   return 'bv-tier1';
   return '';
 }
 
-let _bvState = {}; // track last rendered state per building
+let _bvState = {};
 
 function renderBuildingVisuals() {
   const container = document.getElementById('building-visuals');
   if(!container) return;
 
-  // Only update rows that changed
   BUILDINGS.forEach(b => {
     const owned = gs.owned[b.id] || 0;
     const locked = (b.prestigeReq && gs.prestigeCount < b.prestigeReq) ||
                    (b.ascensionReq && gs.ascensionCount < b.ascensionReq);
 
     if(locked || owned === 0) {
-      // Remove row if it exists
       if(_bvState[b.id] !== 0) {
         const el = container.querySelector('[data-bv="' + b.id + '"]');
         if(el) el.remove();
@@ -1659,17 +1710,15 @@ function renderBuildingVisuals() {
 
     const visualCount = getBuildingVisualCount(owned);
     const densityClass = getBuildingDensityClass(owned);
-
-    // Don't re-render if nothing changed visually
-    if(_bvState[b.id] === visualCount + ':' + densityClass) return;
-    _bvState[b.id] = visualCount + ':' + densityClass;
+    const stateKey = visualCount + ':' + densityClass;
+    if(_bvState[b.id] === stateKey) return;
+    _bvState[b.id] = stateKey;
 
     let row = container.querySelector('[data-bv="' + b.id + '"]');
     if(!row) {
       row = document.createElement('div');
       row.className = 'bv-row';
       row.dataset.bv = b.id;
-      // Insert in BUILDINGS order
       const idx = BUILDINGS.indexOf(b);
       const rows = container.querySelectorAll('.bv-row');
       let inserted = false;
@@ -1682,23 +1731,22 @@ function renderBuildingVisuals() {
 
     row.className = 'bv-row ' + densityClass;
 
-    // Build icons HTML
     const icons = [];
     for(let i = 0; i < visualCount; i++) {
       const delay = (i * 0.12).toFixed(2);
       const offset = (Math.sin(i * 2.4) * 1.5).toFixed(1);
       icons.push('<span class="bv-icon" style="animation-delay:' + delay + 's;--bv-offset:' + offset + 'px">' + b.icon + '</span>');
     }
-
-    // Overflow indicator
     if(owned > visualCount) {
       icons.push('<span class="bv-overflow">+' + (owned - visualCount) + '</span>');
     }
 
     row.innerHTML =
-      '<div class="bv-label"><span class="bv-building-icon">' + b.icon + '</span>' +
-      '<span class="bv-building-name">' + b.name + '</span>' +
-      '<span class="bv-count">×' + owned + '</span></div>' +
+      '<div class="bv-label">' +
+        '<span class="bv-building-icon">' + b.icon + '</span>' +
+        '<span class="bv-building-name">' + b.name + '</span>' +
+        '<span class="bv-count">×' + owned + '</span>' +
+      '</div>' +
       '<div class="bv-icons">' + icons.join('') + '</div>';
   });
 }
@@ -1742,6 +1790,124 @@ function buyPrestigeUp(u,el){
   addLog('🩸 '+u.name+' rang '+gs.prestigeRank[u.id]);renderPrestigeTab();
 }
 
+
+// ══════════════════════════════════════════════════════════
+//  CORRUPTION SYSTEM
+// ══════════════════════════════════════════════════════════
+const CORRUPTION_MAX = 100;
+const CORRUPTION_TICK_RATE = 0.25; // only tick every 0.25s
+
+let _corruptionAcc = 0;
+
+function tickCorruption(dt) {
+  _corruptionAcc += dt;
+  if(_corruptionAcc < CORRUPTION_TICK_RATE) return;
+  _corruptionAcc = 0;
+
+  // Gain rate: driven by SPS magnitude + relics + ascensions
+  const spsContrib  = gs.sps * 0.000012 * CORRUPTION_TICK_RATE;
+  const relicContrib = (gs.relics.length + (gs.fusedRelics||[]).length) * 0.004 * CORRUPTION_TICK_RATE;
+  const ascContrib  = (gs.ascensionCount||0) * 0.008 * CORRUPTION_TICK_RATE;
+  const gain = spsContrib + relicContrib + ascContrib;
+
+  gs.corruption = Math.min(CORRUPTION_MAX, (gs.corruption||0) + gain);
+  gs.totalCorruption = (gs.totalCorruption||0) + gain;
+
+  // Random negative events — scale with corruption tier
+  const tier = getCorruptionTier();
+  if(tier >= 1 && Math.random() < 0.0008 * tier) triggerCorruptionEvent(tier);
+
+  updateCorruptionHUD();
+}
+
+function getCorruptionTier() {
+  const c = gs.corruption||0;
+  if(c >= 80) return 4;
+  if(c >= 60) return 3;
+  if(c >= 40) return 2;
+  if(c >= 20) return 1;
+  return 0;
+}
+
+// Corruption gives a production bonus but also triggers instability
+function getCorruptionMult() {
+  const c = gs.corruption||0;
+  return 1 + c * 0.018; // up to +180% at max, but with serious downsides
+}
+
+function getCorruptionInstability() {
+  // Fraction of gain randomly nullified at high corruption
+  const c = gs.corruption||0;
+  if(c < 40) return 0;
+  return Math.min(0.35, (c - 40) * 0.0035); // up to 35% instability above 40
+}
+
+function triggerCorruptionEvent(tier) {
+  const events = [
+    // tier 1+
+    {minTier:1, fn:()=>{ const loss=Math.max(10,gs.souls*0.005); gs.souls=Math.max(0,gs.souls-loss);
+      addLog('⚠ Corruption — −'+fmt(loss)+' âmes volatilisées','ev-red'); }},
+    // tier 2+
+    {minTier:2, fn:()=>{ gs.spsMultBuff=Math.min(gs.spsMultBuff,0.6); gs.buffTimer=Math.max(gs.buffTimer,8);
+      addLog('☠ Corruption — production instable (×0.6, 8s)','ev-red'); }},
+    // tier 2+
+    {minTier:2, fn:()=>{ gs._nextEvent=Math.min(gs._nextEvent||99, 4+Math.random()*6);
+      addLog('⚡ Corruption — événement négatif imminent…','ev-red'); }},
+    // tier 3+
+    {minTier:3, fn:()=>{ BUILDINGS.forEach(b=>{ if(Math.random()<0.12) gs.owned[b.id]=Math.max(0,(gs.owned[b.id]||0)-1); });
+      markDirty(); addLog('💀 Corruption — bâtiments corrompus, 1 unité détruite','ev-red'); }},
+    // tier 4+
+    {minTier:4, fn:()=>{ gs.clickMultBuff=Math.min(gs.clickMultBuff,0.3); gs.buffTimer=Math.max(gs.buffTimer,12);
+      addLog('🌑 Corruption Abyssale — clics réduits à ×0.3 (12s)','ev-red'); }},
+  ];
+  const eligible = events.filter(e=>e.minTier<=tier);
+  if(!eligible.length) return;
+  eligible[Math.floor(Math.random()*eligible.length)].fn();
+  sfx.event && sfx.event();
+}
+
+// Cleanse corruption: costs Abyss Points, reduces corruption
+function cleanseCorruption(amount) {
+  const c = gs.corruption||0;
+  if(c <= 0) { showToast('Aucune corruption à purifier','gold'); return; }
+  const cost = Math.ceil(Math.max(1, c * 0.4));
+  if((gs.abyssPoints||0) < cost) { showToast('AP insuffisants ('+cost+' requis)','red'); return; }
+  gs.abyssPoints -= cost;
+  const removed = Math.min(c, amount || 25);
+  gs.corruption = Math.max(0, c - removed);
+  markDirty();
+  sfx.upgrade && sfx.upgrade();
+  addLog('✨ Corruption purifiée — −'+removed.toFixed(1),'ev-gold');
+  showToast('✨ Purification — −'+removed.toFixed(1)+' corruption','gold');
+  updateCorruptionHUD();
+  renderAbyssTab && renderAbyssTab();
+}
+window.cleanseCorruption = cleanseCorruption;
+
+// HUD bar (injected into #main)
+let _corruptHUDBuilt = false;
+function updateCorruptionHUD() {
+  if(!_corruptHUDBuilt) {
+    const ms = document.querySelector('.milestone-wrap');
+    if(!ms) return;
+    const bar = document.createElement('div');
+    bar.id = 'corruption-bar-wrap';
+    bar.innerHTML = `<div class="corruption-bar-label"><span id="corrupt-label">☠ Corruption</span><span id="corrupt-pct">0%</span></div><div class="corruption-track"><div id="corruption-fill"></div></div><div id="corrupt-tier-text"></div>`;
+    ms.insertAdjacentElement('afterend', bar);
+    _corruptHUDBuilt = true;
+  }
+  const c = gs.corruption||0;
+  const pct = (c/CORRUPTION_MAX*100).toFixed(1);
+  const tier = getCorruptionTier();
+  const tierNames = ['','Perturbée','Instable','Dangereuse','Abyssale'];
+  const fill = document.getElementById('corruption-fill');
+  const pctEl = document.getElementById('corrupt-pct');
+  const tierEl = document.getElementById('corrupt-tier-text');
+  if(fill) { fill.style.width=pct+'%'; fill.className='corruption-fill tier-'+tier; }
+  if(pctEl) pctEl.textContent = pct+'%';
+  if(tierEl) tierEl.textContent = tier>0 ? tierNames[tier]+' — +'+Math.round(c*1.8)+'% prod / instabilité '+(getCorruptionInstability()*100).toFixed(0)+'%' : 'Stable';
+}
+
 // ══════════════════════════════════════════════════════════
 //  GAME LOOP
 // ══════════════════════════════════════════════════════════
@@ -1768,11 +1934,13 @@ function checkLateGameVfx(){
 function gameLoop(now){
   const dt=Math.min((now-_lastNow)/1000,.1);_lastNow=now;
   const effSps=getEffSps();
-  const gain=(effSps+gs.autoCps*gs.clickPower)*dt;
+  let gain=(effSps+gs.autoCps*gs.clickPower)*dt;
+  const _instab=getCorruptionInstability();
+  if(_instab>0&&Math.random()<_instab) gain*=(0.4+Math.random()*0.4);
   if(gain>0){gs.souls+=gain;gs.totalSouls+=gain;}
   if(gs.activeQuest?.type==='souls')gs.questProgress+=gain;
   gs.playTime=(gs.playTime||0)+dt;
-  tickEvents(dt);tickBuffs(dt);tickDC(dt);tickCombo(dt);tickResonance(dt);tickQuestCombo(dt);
+  tickEvents(dt);tickBuffs(dt);tickDC(dt);tickCombo(dt);tickResonance(dt);tickQuestCombo(dt);tickCorruption(dt);
   if(gs.activeQuest)tickQuest(dt);
   else{_nextQuestIn-=dt;if(_nextQuestIn<=0)trySpawnQuest();}
   if(_cache.dirty)recalcAll();
@@ -2014,6 +2182,162 @@ function getRelicLevelText(rid,lvl=getRelicLevel(rid)){
   return{current:lines.filter((_,i)=>tiers[i]<=lvl).pop()||r.desc,next:lvl>=RELIC_MAX_LEVEL?'Forme ascendée active':(nextIdx>=0?lines[nextIdx]:'Scaling actuel ×'+scale.toFixed(2)),scale};
 }
 
+
+// ══════════════════════════════════════════════════════════
+//  RELIC FUSION SYSTEM
+// ══════════════════════════════════════════════════════════
+const FUSE_AP_COST = 30;       // base AP cost
+const FUSE_AP_SCALING = 1.8;   // cost multiplier per previous fusion
+const MAX_FUSED = 4;           // max fused relics allowed
+
+function getFuseCost() {
+  return Math.ceil(FUSE_AP_COST * Math.pow(FUSE_AP_SCALING, (gs.fuseCount||0)));
+}
+
+// Build a fused relic object from two base relic ids
+function buildFusedRelic(id1, id2) {
+  const r1 = getRelicDef(id1), r2 = getRelicDef(id2);
+  if(!r1||!r2) return null;
+  const fusedId = 'fused_' + id1 + '_' + id2 + '_' + Date.now();
+  const fusedLevel = Math.floor((getRelicLevel(id1) + getRelicLevel(id2)) / 2) + 1;
+  const perLevel1 = r1.effect_scaling?.perLevel || 0;
+  const perLevel2 = r2.effect_scaling?.perLevel || 0;
+  return {
+    id: fusedId,
+    sourceIds: [id1, id2],
+    icon: r1.icon + r2.icon,
+    name: r1.name.split(' ')[0] + ' & ' + r2.name.split(' ')[0],
+    desc: 'Fusion — ' + r1.desc + ' | ' + r2.desc,
+    isFused: true,
+    // Combined effect: both original effects × 1.5 amplification
+    effect1: {type: r1.effect_scaling.type, perLevel: perLevel1 * 1.5},
+    effect2: {type: r2.effect_scaling.type, perLevel: perLevel2 * 1.5},
+    fusedLevel,
+    ap_cost_base: Math.ceil((r1.ap_cost_base + r2.ap_cost_base) * 1.2),
+    ap_cost_scaling: RELIC_AP_COST_SCALING,
+    effect_scaling: {type: 'fused', perLevel: (perLevel1 + perLevel2) * 0.8},
+  };
+}
+
+function fuseRelics(id1, id2) {
+  if(!id1 || !id2 || id1 === id2) { showToast('Sélectionnez 2 reliques différentes','red'); return; }
+  if(!hasRelic(id1) || !hasRelic(id2)) { showToast('Reliques non possédées','red'); return; }
+  if((gs.fusedRelics||[]).length >= MAX_FUSED) { showToast('Maximum de fusions atteint ('+MAX_FUSED+')','red'); return; }
+  const cost = getFuseCost();
+  if((gs.abyssPoints||0) < cost) { showToast('AP insuffisants ('+cost+' requis)','red'); return; }
+
+  const newRelic = buildFusedRelic(id1, id2);
+  if(!newRelic) return;
+
+  // Deduct cost & remove source relics
+  gs.abyssPoints -= cost;
+  gs.relics = gs.relics.filter(r => r !== id1 && r !== id2);
+  // Remove their levels
+  if(gs.relicLevels) { delete gs.relicLevels[id1]; delete gs.relicLevels[id2]; }
+  // Add fused relic
+  if(!gs.fusedRelics) gs.fusedRelics = [];
+  gs.fusedRelics.push(newRelic);
+  gs.fuseCount = (gs.fuseCount||0) + 1;
+  gs.relicLevels[newRelic.id] = newRelic.fusedLevel;
+
+  markDirty();
+  sfx.ascend && sfx.ascend();
+  addLog('💎 Fusion : '+newRelic.name+' (Lv '+newRelic.fusedLevel+')','ev-purple');
+  showToast('💎 Relique fusionnée : '+newRelic.name,'purple');
+  renderRelicsOverlay();
+}
+
+// Apply fused relic effects in recalcAll
+function applyFusedRelicEffects(gm_ref) {
+  let gm = gm_ref;
+  (gs.fusedRelics||[]).forEach(fr => {
+    const lvl = Math.max(1, gs.relicLevels?.[fr.id] || fr.fusedLevel || 1);
+    const boost = getRelicBoost(); // skill tree bonus
+    // effect1
+    if(fr.effect1?.type === 'passive_global') gm *= (1 + fr.effect1.perLevel * lvl * boost);
+    // effect2
+    if(fr.effect2?.type === 'passive_global') gm *= (1 + fr.effect2.perLevel * lvl * boost);
+    // additive types handled elsewhere (auto-click, etc.)
+  });
+  return gm;
+}
+
+// Returns extra auto-click from fused relics with additive types
+function getFusedRelicAutoCps() {
+  let auto = 0;
+  (gs.fusedRelics||[]).forEach(fr => {
+    const lvl = Math.max(1, gs.relicLevels?.[fr.id] || fr.fusedLevel || 1);
+    if(fr.effect1?.type === 'additive_auto') auto += fr.effect1.perLevel * lvl * 5;
+    if(fr.effect2?.type === 'additive_auto') auto += fr.effect2.perLevel * lvl * 5;
+  });
+  return auto;
+}
+
+// UI state for fusion selection
+let _fuseSelected = [];
+
+function renderFusionUI(container) {
+  if(!container) return;
+  const owned = gs.relics || [];
+  if(owned.length < 2) {
+    container.innerHTML = '<div class="fuse-notice">Il faut au moins 2 reliques pour fusionner.</div>';
+    return;
+  }
+  if((gs.fusedRelics||[]).length >= MAX_FUSED) {
+    container.innerHTML = '<div class="fuse-notice">Maximum de fusions atteint ('+MAX_FUSED+').</div>';
+    return;
+  }
+  const cost = getFuseCost();
+  const ap = gs.abyssPoints||0;
+
+  let html = '<div class="fuse-header">';
+  html += '<span>💎 Fusion de Reliques</span>';
+  html += '<span class="fuse-cost">Coût : '+cost+' AP ('+ap+' dispo)</span>';
+  html += '</div>';
+  html += '<div class="fuse-desc">Sélectionnez 2 reliques à combiner. Elles seront détruites et remplacées par une relique amplifiée (×1.5 chaque effet).</div>';
+  html += '<div class="fuse-slots" id="fuse-slots">';
+  owned.forEach(rid => {
+    const r = getRelicDef(rid);
+    if(!r) return;
+    const sel = _fuseSelected.includes(rid);
+    html += '<div class="fuse-slot'+(sel?' fuse-sel':'')+'" data-rid="'+rid+'">'+r.icon+' <span>'+r.name+'</span></div>';
+  });
+  html += '</div>';
+  html += '<button class="btn-do-fuse" id="btn-do-fuse" '+((_fuseSelected.length<2||ap<cost)?'disabled':'')+'>⚗ Fusionner</button>';
+
+  // Show existing fused relics
+  if((gs.fusedRelics||[]).length > 0) {
+    html += '<div class="fuse-existing-title">Reliques fusionnées ('+gs.fusedRelics.length+'/'+MAX_FUSED+')</div>';
+    gs.fusedRelics.forEach(fr => {
+      const lvl = gs.relicLevels?.[fr.id] || fr.fusedLevel || 1;
+      html += '<div class="fuse-existing-item"><span class="fuse-ex-icon">'+fr.icon+'</span><div><div class="fuse-ex-name">'+fr.name+' <em>Lv '+lvl+'</em></div><div class="fuse-ex-desc">'+fr.desc+'</div></div></div>';
+    });
+  }
+
+  container.innerHTML = html;
+
+  // Slot selection
+  container.querySelectorAll('.fuse-slot').forEach(el => {
+    el.addEventListener('click', () => {
+      const rid = el.dataset.rid;
+      if(_fuseSelected.includes(rid)) {
+        _fuseSelected = _fuseSelected.filter(x => x !== rid);
+      } else if(_fuseSelected.length < 2) {
+        _fuseSelected.push(rid);
+      }
+      renderFusionUI(container);
+    });
+  });
+
+  const btn = container.querySelector('#btn-do-fuse');
+  if(btn) btn.addEventListener('click', () => {
+    if(_fuseSelected.length === 2) {
+      fuseRelics(_fuseSelected[0], _fuseSelected[1]);
+      _fuseSelected = [];
+    }
+  });
+}
+
 function openRelicsOverlay(){
   renderRelicsOverlay();
   openOverlay('relics-overlay');
@@ -2034,6 +2358,13 @@ function renderRelicsOverlay(){
     if(owned&&!maxed)card.querySelector('button').addEventListener('click',()=>tryUpgradeRelic(r.id));
     rgrid.appendChild(card);
   });
+  // Fusion panel
+  const fuseWrap = document.createElement('div');
+  fuseWrap.className = 'relic-fuse-wrap';
+  fuseWrap.id = 'relic-fuse-panel';
+  grid.appendChild(fuseWrap);
+  renderFusionUI(fuseWrap);
+
   document.getElementById('btn-close-relics')?.addEventListener('click',()=>closeOverlay('relics-overlay'));
   document.getElementById('relics-overlay')?.addEventListener('click',function(e){if(e.target===this)closeOverlay('relics-overlay');});
 }
@@ -2164,16 +2495,16 @@ function _buildAdminPanel(){
       <h4>🏚️ Bâtiments</h4>
       <div class="ap-row">
         <select class="ap-select" id="ap-bld-sel">
-          <option value="cultist">🕯️ Cultiste</option>
-          <option value="tomb">⚰️ Tombeau</option>
-          <option value="altar">🔮 Autel Noir</option>
-          <option value="crypt">🏚️ Crypte</option>
-          <option value="lich">💀 Liche</option>
-          <option value="portal">🌀 Portail</option>
-          <option value="void">🕳️ Fragment du Néant</option>
-          <option value="titan">👁️ Titan Primordial</option>
-          <option value="abyss">🌑 Gouffre Abyssal</option>
-          <option value="nexus">🔱 Nexus Abyssal</option>
+          <option value="cultist">🕯️ Acolyte du Néant</option>
+          <option value="tomb">⚰️ Sépulcre Profané</option>
+          <option value="altar">🔮 Autel du Sacrilège</option>
+          <option value="crypt">🏚️ Ossuaire Maudit</option>
+          <option value="lich">💀 Archiliché</option>
+          <option value="portal">🌀 Faille Abyssale</option>
+          <option value="void">🕳️ Éclat du Néant</option>
+          <option value="titan">👁️ Colosse Déchu</option>
+          <option value="abyss">🌑 Gouffre Éternel</option>
+          <option value="nexus">🔱 Nexus Primordial</option>
         </select>
         <input class="ap-input" id="ap-bld-qty" type="number" value="10" min="1" style="max-width:55px">
         <button class="ap-btn" id="ap-add-bld">+ Add</button>
