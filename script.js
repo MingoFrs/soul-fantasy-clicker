@@ -64,36 +64,36 @@ const BUILDINGS=[
 ];
 
 const UPGRADES=[
-  {id:'c1',icon:'🗡️',name:'Lames Maudites',    desc:'+1 clic/rang',         cost:80,     maxRank:5,type:'click',      add:1,   req:()=>true,                     vfx:'none'},
-  {id:'c2',icon:'🔥',name:"Flammes de l'Âme",  desc:'×1.5 clic/rang',       cost:600,    maxRank:4,type:'click_mult', mult:1.5,req:()=>gs.totalSouls>=300,       vfx:'fire'},
-  {id:'c3',icon:'⚡',name:'Foudre Noire',       desc:'+5 clic/rang',         cost:5000,   maxRank:5,type:'click',      add:5,   req:()=>gs.totalSouls>=1500,      vfx:'lightning'},
-  {id:'c4',icon:'🌑',name:'Éclipse Totale',     desc:'×2 clic/rang',         cost:40000,  maxRank:3,type:'click_mult', mult:2,  req:()=>gs.totalSouls>=20000,     vfx:'none'},
-  {id:'b1',icon:'📜',name:'Grimoire Sanglant',  desc:'Cultistes ×2/rang',    cost:300,    maxRank:4,type:'building',   target:'cultist',mult:2,req:()=>gs.owned.cultist>=5, vfx:'none'},
-  {id:'b2',icon:'🦴',name:'Os des Anciens',     desc:'Tombeaux ×2/rang',     cost:2000,   maxRank:4,type:'building',   target:'tomb',   mult:2,req:()=>gs.owned.tomb>=3,    vfx:'none'},
-  {id:'b3',icon:'💫',name:'Étoile Mourante',    desc:'Autels ×2/rang',       cost:9000,   maxRank:4,type:'building',   target:'altar',  mult:2,req:()=>gs.owned.altar>=5,   vfx:'none'},
-  {id:'b4',icon:'🕸️',name:"Toile de l'Oubli",  desc:'Cryptes ×2/rang',      cost:35000,  maxRank:3,type:'building',   target:'crypt',  mult:2,req:()=>gs.owned.crypt>=5,   vfx:'none'},
-  {id:'b5',icon:'🧿',name:'Œil du Liche',       desc:'Liches ×2/rang',       cost:140000, maxRank:3,type:'building',   target:'lich',   mult:2,req:()=>gs.owned.lich>=3,    vfx:'none'},
-  {id:'b6',icon:'🌀',name:'Vortex Abyssal',     desc:'Portails ×2/rang',     cost:600000, maxRank:3,type:'building',   target:'portal', mult:2,req:()=>gs.owned.portal>=3,  vfx:'none'},
-  {id:'g1',icon:'🌙',name:'Lune de Sang',       desc:'Prod ×1.3/rang',       cost:25000,  maxRank:5,type:'global',     mult:1.3,req:()=>gs.totalSouls>=12000,     vfx:'none'},
-  {id:'g2',icon:'🌑',name:'Soleil Noir',         desc:'Prod ×1.5/rang',       cost:200000, maxRank:4,type:'global',     mult:1.5,req:()=>gs.totalSouls>=100000,    vfx:'none'},
-  {id:'g3',icon:'✨',name:'Convergence',         desc:'Clic = 1% prod/sec',   cost:8000,   maxRank:1,type:'synergy',             req:()=>gs.totalSouls>=4000,      vfx:'convergence'},
-  {id:'a1',icon:'⚙️',name:'Rituel Autonome',    desc:'Auto-clic 0.5/s/rang', cost:2500,   maxRank:5,type:'auto',       cps:.5,  req:()=>gs.owned.cultist>=3,       vfx:'none'},
-  {id:'a2',icon:'🤖',name:'Golem de Pierre',    desc:'Auto-clic 1/s/rang',   cost:18000,  maxRank:4,type:'auto',       cps:1,   req:()=>gs.totalSouls>=6000,      vfx:'none'},
-  {id:'v1',icon:'🕳️',name:'Fractures du Néant', desc:'Voids ×2/rang',        cost:1500000,maxRank:3,type:'building',   target:'void',   mult:2,req:()=>gs.owned.void>=2,     vfx:'void'},
-  {id:'v2',icon:'👁️',name:'Regard du Titan',    desc:'Titans ×2/rang',       cost:8000000,maxRank:3,type:'building',   target:'titan',  mult:2,req:()=>gs.owned.titan>=1,    vfx:'none'},
+  {id:'c1',icon:'🗡️',name:'Griffes du Supplice',    desc:'+1 au clic par rang',         cost:80,     maxRank:5,type:'click',      add:1,   req:()=>true,                     vfx:'none'},
+  {id:'c2',icon:'🔥',name:"Brasier d'Âmes Consumées",  desc:'Clic ×1.5 par rang',       cost:600,    maxRank:4,type:'click_mult', mult:1.5,req:()=>gs.totalSouls>=300,       vfx:'fire'},
+  {id:'c3',icon:'⚡',name:'Éclair du Vide',       desc:'+5 au clic par rang',         cost:5000,   maxRank:5,type:'click',      add:5,   req:()=>gs.totalSouls>=1500,      vfx:'lightning'},
+  {id:'c4',icon:'🌑',name:"Embrassement de la Nuit",     desc:'Clic ×2 par rang',         cost:40000,  maxRank:3,type:'click_mult', mult:2,  req:()=>gs.totalSouls>=20000,     vfx:'none'},
+  {id:'b1',icon:'📜',name:'Litanies du Sang Noir',  desc:'Acolytes ×2 par rang',    cost:300,    maxRank:4,type:'building',   target:'cultist',mult:2,req:()=>gs.owned.cultist>=5, vfx:'none'},
+  {id:'b2',icon:'🦴',name:'Ossements des Damnés',     desc:'Sépulcres ×2 par rang',     cost:2000,   maxRank:4,type:'building',   target:'tomb',   mult:2,req:()=>gs.owned.tomb>=3,    vfx:'none'},
+  {id:'b3',icon:'💫',name:'Offrande au Sacrilège',    desc:'Autels ×2 par rang',       cost:9000,   maxRank:4,type:'building',   target:'altar',  mult:2,req:()=>gs.owned.altar>=5,   vfx:'none'},
+  {id:'b4',icon:'🕸️',name:'Linceul du Néant',  desc:'Ossuaires ×2 par rang',      cost:35000,  maxRank:3,type:'building',   target:'crypt',  mult:2,req:()=>gs.owned.crypt>=5,   vfx:'none'},
+  {id:'b5',icon:'🧿',name:'Regard de la Mort-Mémoire',       desc:'Archilchés ×2 par rang',       cost:140000, maxRank:3,type:'building',   target:'lich',   mult:2,req:()=>gs.owned.lich>=3,    vfx:'none'},
+  {id:'b6',icon:'🌀',name:'Convergence des Failles',     desc:'Failles ×2 par rang',     cost:600000, maxRank:3,type:'building',   target:'portal', mult:2,req:()=>gs.owned.portal>=3,  vfx:'none'},
+  {id:'g1',icon:'🌙',name:"Rite de l'Obscurité",       desc:'Production ×1.3 par rang',       cost:25000,  maxRank:5,type:'global',     mult:1.3,req:()=>gs.totalSouls>=12000,     vfx:'none'},
+  {id:'g2',icon:'🌑',name:'Serment des Cendres',         desc:'Production ×1.5 par rang',       cost:200000, maxRank:4,type:'global',     mult:1.5,req:()=>gs.totalSouls>=100000,    vfx:'none'},
+  {id:'g3',icon:'✨',name:'Éveil de la Synergie',         desc:'Clic converti en 1% SPS',   cost:8000,   maxRank:1,type:'synergy',             req:()=>gs.totalSouls>=4000,      vfx:'convergence'},
+  {id:'a1',icon:'⚙️',name:'Rite de Désagrégation',    desc:'Auto-invocation 0.5/s par rang', cost:2500,   maxRank:5,type:'auto',       cps:.5,  req:()=>gs.owned.cultist>=3,       vfx:'none'},
+  {id:'a2',icon:'🤖',name:'Golem Maudit',    desc:'Auto-invocation 1/s par rang',   cost:18000,  maxRank:4,type:'auto',       cps:1,   req:()=>gs.totalSouls>=6000,      vfx:'none'},
+  {id:'v1',icon:'🕳️',name:"Abîme de la Désolation", desc:'Éclats ×2 par rang',        cost:1500000,maxRank:3,type:'building',   target:'void',   mult:2,req:()=>gs.owned.void>=2,     vfx:'void'},
+  {id:'v2',icon:'👁️',name:'Tribut au Colosse Déchu',    desc:'Colosses ×2 par rang',       cost:8000000,maxRank:3,type:'building',   target:'titan',  mult:2,req:()=>gs.owned.titan>=1,    vfx:'none'},
 ];
 
 const PRESTIGE_UPS=[
-  {id:'p1',icon:'🩸',name:'Soif de Sang',      desc:'+12% prod/rang',          cost:2, maxRank:10,type:'global_mult',         mult:1.12},
-  {id:'p2',icon:'💔',name:'Cœur Brisé',        desc:'+50% clic/rang',          cost:4, maxRank:5, type:'click_pmult',         mult:1.5},
-  {id:'p3',icon:'⚰️',name:'Mémoire des Morts', desc:'Garder 5% âmes/rang',     cost:6, maxRank:4, type:'keep_pct',            mult:.05},
-  {id:'p4',icon:'🌹',name:'Rose Maudite',       desc:'Bâtiments -8% coût/rang', cost:5, maxRank:5, type:'cost_reduce',         mult:.92},
-  {id:'p5',icon:'👑',name:"Couronne d'Ombre",   desc:'×2.5 prod global',        cost:20,maxRank:3, type:'global_mult',         mult:2.5},
-  {id:'m1',icon:'💥',name:'Frappe Explosive',   desc:'1% chance clic ×100/rang',cost:8, maxRank:3, type:'mech_crit',           critChance:.01,critMult:100},
-  {id:'m2',icon:'🔄',name:'Résonance Sombre',   desc:'Achat = clics ×3 (5s)',   cost:10,maxRank:1, type:'mech_resonance'},
-  {id:'m3',icon:'🌀',name:'Vortex Temporel',    desc:'Eclipse double DC bonus', cost:12,maxRank:1, type:'mech_eclipse_dc'},
-  {id:'m4',icon:'👿',name:'Maître des Démons',  desc:'+10 démons max/rang',     cost:8, maxRank:3, type:'mech_demon_cap',      add:10},
-  {id:'m5',icon:'⭐',name:'Étoile Mourante',    desc:'Milestones +10% prod/rang',cost:15,maxRank:5,type:'mech_milestone_boost',mult:.10},
+  {id:'p1',icon:'🩸',name:'Avidité des Abysses',      desc:'+12% production par rang',          cost:2, maxRank:10,type:'global_mult',         mult:1.12},
+  {id:'p2',icon:'💔',name:'Volonté du Condamné',        desc:'+50% clic par rang',          cost:4, maxRank:5, type:'click_pmult',         mult:1.5},
+  {id:'p3',icon:'⚰️',name:'Pacte de Conservation', desc:'Conserver 5% âmes par rang',     cost:6, maxRank:4, type:'keep_pct',            mult:.05},
+  {id:'p4',icon:'🌹',name:'Corruption du Marché',       desc:'Bâtiments −8% coût par rang', cost:5, maxRank:5, type:'cost_reduce',         mult:.92},
+  {id:'p5',icon:'👑',name:'Couronne Abyssale',   desc:'Production globale ×2.5',        cost:20,maxRank:3, type:'global_mult',         mult:2.5},
+  {id:'m1',icon:'💥',name:'Détonation Sacrificielle',   desc:'1% chance clic ×100 par rang',cost:8, maxRank:3, type:'mech_crit',           critChance:.01,critMult:100},
+  {id:'m2',icon:'🔄',name:'Résonance des Damnés',   desc:'Achat = clics ×3 pendant 5s',   cost:10,maxRank:1, type:'mech_resonance'},
+  {id:'m3',icon:'🌀',name:'Distorsion Temporelle',    desc:'Éclipse double les bonus DC', cost:12,maxRank:1, type:'mech_eclipse_dc'},
+  {id:'m4',icon:'👿',name:'Seigneur de la Légion',  desc:'+10 démons maximum par rang',     cost:8, maxRank:3, type:'mech_demon_cap',      add:10},
+  {id:'m5',icon:'⭐',name:'Flamme des Ascensions',    desc:'Seuils +10% production par rang',cost:15,maxRank:5,type:'mech_milestone_boost',mult:.10},
 ];
 
 const SKILL_TREE={
@@ -1125,7 +1125,9 @@ function spawnDC(forceBonus=false){
   if(gs.relics.includes('r6')&&gs.activeEvent&&!forceBonus)setTimeout(()=>spawnDC(true),2000);
 }
 function collectDC(def,x,y){
-  if(!dcActive)return;sfx.dc();
+  if(!dcActive)return;
+  dcActive=null; // prevent multi-collect with autoclicker
+  sfx.dc();
   const el=document.getElementById('dark-cookie');
   if(el){el.classList.add('vanish');setTimeout(()=>removeDC(true),280);}else removeDC(true);
   const eclBoost=(gs.prestigeRank['m3']||0)>0&&gs.activeEvent?.id==='eclipse'?2:1;
@@ -1560,7 +1562,7 @@ function renderMilestone(){
 function renderBuildings(){
   const list=document.getElementById('tab-gen');if(!list)return;
   if(!list.querySelector('.sec-title')){
-    const t=document.createElement('div');t.className='sec-title';t.textContent="Invocateurs d'âmes";list.prepend(t);
+    const t=document.createElement('div');t.className='sec-title';t.textContent="Légion des Ténèbres";list.prepend(t);
   }
   const ex={};list.querySelectorAll('.building[data-id]').forEach(el=>ex[el.dataset.id]=el);
   BUILDINGS.forEach(b=>{
@@ -1587,10 +1589,10 @@ function renderUpgrades(){
     const s=document.createElement('div');s.className='sec-title';s.textContent=title;list.appendChild(s);
     const g=document.createElement('div');g.className='up-grid';arr.forEach(u=>g.appendChild(makeUpEl(u,false)));list.appendChild(g);
   };
-  sec('Pouvoir du Clic',UPGRADES.filter(u=>['click','click_mult','synergy'].includes(u.type)));
-  sec('Rituels des Bâtiments',UPGRADES.filter(u=>u.type==='building'));
-  sec('Malédictions Globales',UPGRADES.filter(u=>u.type==='global'));
-  sec('Automatisation',UPGRADES.filter(u=>u.type==='auto'));
+  sec('Arts du Sacrifice',UPGRADES.filter(u=>['click','click_mult','synergy'].includes(u.type)));
+  sec('Corruption des Édifices',UPGRADES.filter(u=>u.type==='building'));
+  sec('Malédictions Primordiales',UPGRADES.filter(u=>u.type==='global'));
+  sec('Serviteurs des Ténèbres',UPGRADES.filter(u=>u.type==='auto'));
 }
 
 function makeUpEl(u,isP){
@@ -1618,9 +1620,9 @@ function renderPrestigeTab(){
   btn.innerHTML=bp>0?'🩸 Pacte de Sang (+'+bp+' pts)':'🩸 Pacte (indisponible)';
   btn.disabled=gs.totalSouls<req||bp<1;
   btn.addEventListener('click',openPrestigeModal);tab.appendChild(btn);
-  const t1=document.createElement('div');t1.className='sec-title';t1.textContent='Multiplicateurs';tab.appendChild(t1);
+  const t1=document.createElement('div');t1.className='sec-title';t1.textContent='Pactes Permanents';tab.appendChild(t1);
   const g1=document.createElement('div');g1.className='up-grid';PRESTIGE_UPS.filter(u=>!u.type.startsWith('mech_')).forEach(u=>g1.appendChild(makeUpEl(u,true)));tab.appendChild(g1);
-  const t2=document.createElement('div');t2.className='sec-title';t2.textContent='Mécaniques Uniques';tab.appendChild(t2);
+  const t2=document.createElement('div');t2.className='sec-title';t2.textContent='Rites de Transcendance';tab.appendChild(t2);
   const ms=document.createElement('div');ms.className='prestige-mechanic-section';
   const md=document.createElement('div');md.className='pm-mechanic-desc';md.textContent='Ces améliorations transforment le jeu.';ms.appendChild(md);
   const g2=document.createElement('div');g2.className='up-grid';PRESTIGE_UPS.filter(u=>u.type.startsWith('mech_')).forEach(u=>g2.appendChild(makeUpEl(u,true)));ms.appendChild(g2);tab.appendChild(ms);
@@ -1908,6 +1910,38 @@ function updateCorruptionHUD() {
   if(tierEl) tierEl.textContent = tier>0 ? tierNames[tier]+' — +'+Math.round(c*1.8)+'% prod / instabilité '+(getCorruptionInstability()*100).toFixed(0)+'%' : 'Stable';
 }
 
+
+// ══════════════════════════════════════════════════════════
+//  STATUS PANEL — active bonuses strip in #main
+// ══════════════════════════════════════════════════════════
+let _statusPanelBuilt=false;
+function updateStatusPanel(){
+  if(!_statusPanelBuilt){
+    const cpd=document.getElementById('click-power-display');
+    if(!cpd)return;
+    const panel=document.createElement('div');
+    panel.id='status-panel';
+    cpd.insertAdjacentElement('afterend',panel);
+    _statusPanelBuilt=true;
+  }
+  const panel=document.getElementById('status-panel');if(!panel)return;
+  const parts=[];
+  if(gs.activeEvent){
+    const evcls={eclipse:'sp-eclipse',invasion:'sp-invasion',harvest:'sp-harvest',storm:'sp-storm',pact:'sp-pact',titan:'sp-titan'};
+    const cls=evcls[gs.activeEvent.id]||'sp-event';
+    parts.push('<span class="sp-badge '+cls+'">'+(gs.activeEvent.name||'Event')+'</span>');
+  }
+  if(gs.buffTimer>0){
+    if((gs.spsMultBuff||1)!==1)parts.push('<span class="sp-badge sp-buff-sps">⚡ ×'+gs.spsMultBuff+' SPS <em>'+Math.ceil(gs.buffTimer)+'s</em></span>');
+    if((gs.clickMultBuff||1)!==1)parts.push('<span class="sp-badge sp-buff-click">🗡 ×'+gs.clickMultBuff+' clic <em>'+Math.ceil(gs.buffTimer)+'s</em></span>');
+  }
+  if(gs.resonanceActive)parts.push('<span class="sp-badge sp-resonance">🔄 Résonance ×3</span>');
+  if(gs.activeBoss)parts.push('<span class="sp-badge sp-boss">⚔ '+gs.activeBoss.name+'</span>');
+  const ap=gs.abyssPoints||0;if(ap>0)parts.push('<span class="sp-badge sp-ap">🌌 '+ap+' AP</span>');
+  const corruption=gs.corruption||0;if(corruption>=20)parts.push('<span class="sp-badge sp-corrupt">☠ '+corruption.toFixed(0)+'%</span>');
+  panel.innerHTML=parts.join('');
+}
+
 // ══════════════════════════════════════════════════════════
 //  GAME LOOP
 // ══════════════════════════════════════════════════════════
@@ -1960,7 +1994,7 @@ function gameLoop(now){
     }
   }
   _uiAcc+=dt;
-  if(_uiAcc>=UI_INTERVAL){_uiAcc=0;renderHUD();renderMilestone();updateComboDisplay();}
+  if(_uiAcc>=UI_INTERVAL){_uiAcc=0;renderHUD();renderMilestone();updateComboDisplay();updateStatusPanel();}
   requestAnimationFrame(gameLoop);
 }
 
