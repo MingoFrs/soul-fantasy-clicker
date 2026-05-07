@@ -1464,7 +1464,7 @@ function openSettings(){
         </div>
         <div style="border-top:1px solid rgba(150,100,50,.15);padding-top:10px;margin-top:10px;text-align:center;">
           <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:rgba(180,140,80,.32);text-transform:uppercase;margin-bottom:8px;">Testeur officiel</div>
-          <div style="color:rgba(220,180,80,.75);font-family:'Cinzel',serif;font-size:13px;">⚔ Tom</div>
+          <div style="color:rgba(220,180,80,.75);font-family:'Cinzel',serif;font-size:13px;">⚔ M+T</div>
           <div style="font-size:10px;color:rgba(180,140,80,.35);font-style:italic;margin-top:3px;"> — briseur de bugs</div>
         </div>
       </div>
