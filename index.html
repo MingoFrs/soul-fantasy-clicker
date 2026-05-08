@@ -104,12 +104,6 @@
   <div id="event-banner"><div id="eb-main"></div><div class="eb-sub" id="eb-sub"></div></div>
   <div id="event-timer-bar"><div id="event-timer-fill"></div></div>
   <div id="eclipse-hint"></div>
-  <div id="combo-display">
-    <span id="combo-val"></span>
-    <span id="combo-mult">COMBO</span>
-    <span id="combo-clicks"></span>
-    <div id="combo-decay-bar"><div id="combo-decay-fill"></div></div>
-  </div>
   <div id="invasion-bar-wrap">
     <div id="invasion-label">👿 Démons à repousser</div>
     <div id="invasion-track"><div id="invasion-fill"></div></div>
@@ -252,6 +246,8 @@
         <div class="orb-ring" id="ring1"></div>
         <div class="orb-ring" id="ring2"></div>
         <div class="orb-ring" id="ring3"></div>
+        <div class="orb-ring" id="ring4"></div>
+        <canvas id="orb-canvas"></canvas>
         <div id="orb-aura"></div>
         <div class="orb" id="main-orb">
           <span class="orb-glyph" id="orb-glyph">☽</span>
@@ -272,6 +268,16 @@
 
       <div class="log-box" id="log-box">
         <div class="log-entry">Les ténèbres vous accueillent, Seigneur des Âmes…</div>
+      </div>
+
+      <div id="combo-display">
+        <div id="combo-header">
+          <span id="combo-mult">COMBO</span>
+          <span id="combo-clicks"></span>
+        </div>
+        <span id="combo-val"></span>
+        <div id="combo-decay-bar"><div id="combo-decay-fill"></div></div>
+        <div id="combo-hint">Plus vous cliquez vite, plus le bonus augmente !</div>
       </div>
 
     </main>

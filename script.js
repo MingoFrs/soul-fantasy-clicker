@@ -517,6 +517,40 @@ function getComboMult(level){
   return Math.min(cap,base);
 }
 
+// ── COMBO RANKS ──────────────────────────────────────────────
+const COMBO_RANKS=[
+  {key:'ardeur',   label:'ARDEUR',    color:'#e8a040', minPct:.0},
+  {key:'frenésie', label:'FRÉNÉSIE',  color:'#e86030', minPct:.32},
+  {key:'infernal', label:'INFERNAL',  color:'#d83020', minPct:.54},
+  {key:'abyssal',  label:'ABYSSAL',   color:'#9030d8', minPct:.74},
+  {key:'surcharge',label:'SURCHARGE', color:'#ffd840', minPct:.90},
+];
+function getComboRank(level){
+  const pct=level/Math.max(1,getComboMax());
+  let rank=COMBO_RANKS[0];
+  for(const r of COMBO_RANKS)if(pct>=r.minPct)rank=r;
+  return rank;
+}
+let _prevRankKey='';
+function _comboFlash(color){
+  let fl=document.getElementById('combo-flash');
+  if(!fl){fl=document.createElement('div');fl.id='combo-flash';document.getElementById('game-root')?.appendChild(fl);}
+  fl.style.background=color;fl.style.animation='none';void fl.offsetWidth;
+  fl.style.animation='comboFlashAnim .38s ease-out forwards';
+}
+function _onComboRankUp(level){
+  const rank=getComboRank(level);
+  if(rank.key===_prevRankKey)return;
+  _prevRankKey=rank.key;
+  const idx=COMBO_RANKS.indexOf(rank);
+  orbClickBurst(6+idx*3);
+  tone(280+idx*60,'sine',.12,.06);
+  if(idx>=2)_comboFlash(rank.color);
+  if(idx>=3)shake(idx>=4);
+  const orb=document.getElementById('main-orb');
+  if(orb){orb.classList.remove('combo-max');if(idx>=4)orb.classList.add('combo-max');}
+}
+
 function tickCombo(dt){
   if(gs.comboTimer<=0)return;
   gs.comboTimer=Math.max(0,gs.comboTimer-dt);
@@ -549,7 +583,11 @@ function registerClick(){
     const newLevel=Math.min(getComboMax(),(gs.comboVal||0)+1);
     if(newLevel>(gs.comboVal||0)){
       gs.comboVal=newLevel;
+      _onComboRankUp(newLevel);
       tone(330+newLevel*40,'sine',.07,.045);
+      // Visual pulse on level-up
+      const cv=document.getElementById('combo-val');
+      if(cv){cv.classList.remove('gain');void cv.offsetWidth;cv.classList.add('gain');}
     }
   }
   if(gs.comboVal>(gs.maxComboReached||0))gs.maxComboReached=gs.comboVal;
@@ -562,6 +600,8 @@ function resetCombo(){
     const orb=document.getElementById('main-orb');
     if(orb){orb.classList.remove('surge');void orb.offsetWidth;orb.classList.add('surge');setTimeout(()=>orb.classList.remove('surge'),500);}
   }
+  _prevRankKey='';
+  document.getElementById('main-orb')?.classList.remove('combo-max');
   gs.comboVal=0; gs.comboTimer=0; gs._comboClickStreak=0;
 }
 
@@ -718,6 +758,97 @@ function tickCanvas(dt){
     pCtx.beginPath();pCtx.arc(p.x,p.y,p.sz,0,Math.PI*2);pCtx.fill();
   }
   pCtx.globalAlpha=1;
+}
+
+// ── ORB CANVAS PARTICLES ───────────────────────────────────
+let _orbCv=null,_orbCx=null;
+const OP=[];
+let _orbEmberAcc=0;
+const _ORB_CV=360;
+
+function initOrbCanvas(){
+  _orbCv=document.getElementById('orb-canvas');if(!_orbCv)return;
+  _orbCv.width=_ORB_CV;_orbCv.height=_ORB_CV;
+  _orbCx=_orbCv.getContext('2d');
+}
+
+function _orbColor(){
+  const ev=gs.activeEvent?.id;
+  if(ev==='eclipse') return {r:230,g:38,b:28};
+  if(ev==='invasion') return {r:128,g:38,b:228};
+  if(gs.activeBoss) return {r:228,g:168,b:38};
+  const t=gs.currentTier||0;
+  if(t>=5) return {r:210,g:175,b:48};
+  if(t>=4) return {r:138,g:58,b:208};
+  if(t>=3) return {r:208,g:52,b:28};
+  return {r:184,g:128,b:30};
+}
+
+function _orbSpawnEmber(){
+  const cx=_ORB_CV/2,cy=_ORB_CV/2;
+  const angle=Math.PI+(Math.random()-.5)*Math.PI*.85;
+  const dist=90+Math.random()*12;
+  OP.push({x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,
+    vx:(Math.random()-.5)*.32,vy:-(.52+Math.random()*.58),
+    life:1,maxLife:1.3+Math.random()*.9,col:_orbColor(),
+    alpha:.6+Math.random()*.28,sz:.8+Math.random()*1.05,type:'ember'});
+}
+
+function _orbSpawnDust(){
+  const cx=_ORB_CV/2,cy=_ORB_CV/2;
+  const angle=Math.random()*Math.PI*2;
+  const dist=108+Math.random()*52;
+  const spd=.1+Math.random()*.08;
+  OP.push({x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,
+    vx:-Math.sin(angle)*spd+(Math.random()-.5)*.05,
+    vy:Math.cos(angle)*spd+(Math.random()-.5)*.05,
+    life:1,maxLife:2.8+Math.random()*2,col:_orbColor(),
+    alpha:.18+Math.random()*.12,sz:.45+Math.random()*.6,type:'dust'});
+}
+
+function orbClickBurst(n){
+  if(!_orbCx||localStorage.getItem('sh_perf')==='1')return;
+  const cx=_ORB_CV/2,cy=_ORB_CV/2;
+  for(let i=0;i<n;i++){
+    const angle=Math.random()*Math.PI*2;
+    const dist=88+Math.random()*8;
+    const spd=1.1+Math.random()*1.6;
+    OP.push({x:cx+Math.cos(angle)*dist,y:cy+Math.sin(angle)*dist,
+      vx:Math.cos(angle)*spd*.5+(Math.random()-.5)*.7,
+      vy:-(spd*.55+Math.random()*.75),
+      life:1,maxLife:.45+Math.random()*.35,col:_orbColor(),
+      alpha:.85,sz:.9+Math.random()*1.4,type:'ember'});
+  }
+}
+
+function tickOrbCanvas(dt){
+  if(!_orbCx||localStorage.getItem('sh_perf')==='1')return;
+  _orbEmberAcc+=dt;
+  const interval=Math.max(.1,.24-(gs.currentTier||0)*.022);
+  if(_orbEmberAcc>=interval&&OP.length<80){
+    _orbEmberAcc=0;
+    _orbSpawnEmber();
+    if(Math.random()<.28)_orbSpawnDust();
+  }
+  _orbCx.clearRect(0,0,_ORB_CV,_ORB_CV);
+  for(let i=OP.length-1;i>=0;i--){
+    const p=OP[i];
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.type==='ember'){p.vy-=dt*.08;p.vx+=(Math.random()-.5)*.012;}
+    p.life-=dt/p.maxLife;
+    if(p.life<=0){OP.splice(i,1);continue;}
+    const fade=p.life<.28?p.life/.28:1;
+    const a=p.alpha*fade;
+    const {r,g,b}=p.col;
+    _orbCx.globalAlpha=a;
+    _orbCx.fillStyle=`rgb(${r},${g},${b})`;
+    _orbCx.beginPath();_orbCx.arc(p.x,p.y,p.sz,0,Math.PI*2);_orbCx.fill();
+    if(p.type==='ember'&&p.sz>1){
+      _orbCx.globalAlpha=a*.35;
+      _orbCx.beginPath();_orbCx.arc(p.x,p.y,p.sz*2.6,0,Math.PI*2);_orbCx.fill();
+    }
+  }
+  _orbCx.globalAlpha=1;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1101,14 +1232,20 @@ const DC_POOL=[
   {type:'event',icon:'🌀', name:'Vortex Temporel', effect:'sps_mult',  value:10, duration:12,cls:'type-event',lblcls:'event'},
   {type:'event',icon:'🔮', name:'Vision',          effect:'souls_flat',value_fn:()=>Math.max(1000,gs.totalSouls*.05),duration:0,cls:'type-event',lblcls:'event'},
 ];
-let dcActive=null,_dcTimeout=null;
+let dcActive=null,_dcTimeout=null,_dcConsumed=false;
 function tickDC(dt){
   if(dcActive)return;
   gs._nextDC-=dt;
   if(gs._nextDC<=0)spawnDC();
 }
+function _dcHardClean(){
+  // Force-remove any DOM zombies regardless of state
+  document.querySelectorAll('#dark-cookie,#dc-lbl').forEach(n=>n.remove());
+}
 function spawnDC(forceBonus=false){
   if(dcActive)return;
+  // DOM sync check: abort if zombie elements still present
+  _dcHardClean();
   let def=forceBonus
     ? DC_POOL.filter(d=>d.type==='bonus')[Math.floor(Math.random()*5)]
     : DC_POOL[Math.floor(Math.random()*DC_POOL.length)];
@@ -1117,16 +1254,26 @@ function spawnDC(forceBonus=false){
   el.style.left=x+'px';el.style.top=y+'px';el.style.animationDuration=(10+Math.random()*8)+'s';
   const lbl=document.createElement('div');lbl.className='dc-label '+def.lblcls;lbl.textContent=def.name;
   lbl.style.left=x+'px';lbl.style.top=(y+54)+'px';lbl.id='dc-lbl';
-  document.body.appendChild(el);document.body.appendChild(lbl);
+  _dcConsumed=false;
   dcActive=def;
-  el.addEventListener('click',()=>collectDC(def,x,y));
+  // Single-use handler — captured in closure, removed after first valid call
+  function _onDCClick(e){
+    e.stopImmediatePropagation();
+    if(_dcConsumed)return;
+    _dcConsumed=true;
+    el.style.pointerEvents='none'; // instant lock
+    el.removeEventListener('click',_onDCClick);
+    collectDC(def,x,y);
+  }
+  el.addEventListener('click',_onDCClick);
+  document.body.appendChild(el);document.body.appendChild(lbl);
   const w=gs.activeEvent?.id==='eclipse'?10:16;
-  _dcTimeout=setTimeout(()=>removeDC(false),w*1000);
+  _dcTimeout=setTimeout(()=>{if(!_dcConsumed)removeDC(false);},w*1000);
   if(gs.relics.includes('r6')&&gs.activeEvent&&!forceBonus)setTimeout(()=>spawnDC(true),2000);
 }
 function collectDC(def,x,y){
-  if(!dcActive)return;
-  dcActive=null; // prevent multi-collect with autoclicker
+  // _dcConsumed already set true by caller — this is the single execution path
+  clearTimeout(_dcTimeout);
   sfx.dc();
   const el=document.getElementById('dark-cookie');
   if(el){el.classList.add('vanish');setTimeout(()=>removeDC(true),280);}else removeDC(true);
@@ -1151,9 +1298,9 @@ function collectDC(def,x,y){
   }
 }
 function removeDC(collected=false){
-  clearTimeout(_dcTimeout);dcActive=null;
-  document.getElementById('dark-cookie')?.remove();
-  document.getElementById('dc-lbl')?.remove();
+  clearTimeout(_dcTimeout);
+  dcActive=null;_dcConsumed=false;
+  _dcHardClean();
   if(!collected)addLog("Une présence s'évanouit…");
   const base=collected?32:18,eclipse=gs.activeEvent?.id==='eclipse'?.4:1;
   gs._nextDC=(base+Math.random()*38)*eclipse;
@@ -1524,17 +1671,24 @@ function getEffectiveClickDisplay(){return (gs.comboVal||0)>=1?Math.round(gs.cli
 function updateComboDisplay(){
   const el=_el['combo-display']||document.getElementById('combo-display');if(!el)return;
   const level=gs.comboVal||0;
-  if(level<1){if(el.classList.contains('show'))el.classList.remove('show','warning','danger');return;}
+  if(level<1){
+    if(el.classList.contains('show')){
+      el.classList.remove('show','warning','danger');
+      COMBO_RANKS.forEach(r=>el.classList.remove('rank-'+r.key));
+    }
+    return;
+  }
   if(!el.classList.contains('show'))el.classList.add('show');
   const mult=getComboMult(level);
   const win=getComboWindow();
   const pct=gs.comboTimer>0?Math.min(100,(gs.comboTimer/win)*100):0;
   const streak=gs._comboClickStreak||0;const step=getComboStep();
-  const color=level>=getComboMax()?'#ffdd44':level>=3?'#ff9940':'#e06060';
+  const rank=getComboRank(level);
+  COMBO_RANKS.forEach(r=>el.classList.toggle('rank-'+r.key,r.key===rank.key));
   const v=_el['combo-val'];const m=_el['combo-mult'];const ck=_el['combo-clicks'];const fill=_el['combo-decay-fill'];
-  if(v){const t='×'+mult.toFixed(1);if(v.textContent!==t){v.textContent=t;v.style.color=color;}}
-  if(m){const t='COMBO LV'+level;if(m.textContent!==t)m.textContent=t;}
-  if(ck){const t=streak+'/'+step+' clics';if(ck.textContent!==t)ck.textContent=t;}
+  if(v){const t='×'+mult.toFixed(1);if(v.textContent!==t){v.textContent=t;v.style.color=rank.color;}}
+  if(m){if(m.textContent!==rank.label){m.textContent=rank.label;m.style.color=rank.color;}}
+  if(ck){const t='LV'+level+' · '+streak+'/'+step;if(ck.textContent!==t)ck.textContent=t;}
   let barColor;
   if(pct>60)barColor='rgba(100,200,80,.8)';
   else if(pct>30)barColor='rgba(220,160,40,.9)';
@@ -1979,6 +2133,7 @@ function gameLoop(now){
   else{_nextQuestIn-=dt;if(_nextQuestIn<=0)trySpawnQuest();}
   if(_cache.dirty)recalcAll();
   tickCanvas(dt);
+  tickOrbCanvas(dt);
   _slowAcc+=dt;
   if(_slowAcc>=SLOW_INTERVAL){_slowAcc=0;checkMilestones();checkAchievements();checkLateGameVfx();updateOrbSkin();updateBgTier();}
   _affordAcc+=dt;
@@ -2029,6 +2184,7 @@ function initListeners(){
     const cls=isCrit?'crit':(gs.activeEvent?.id==='eclipse'?'red':(gs.activeEvent?.id==='invasion'?'purple':''));
     spawnFloater(e.clientX,e.clientY,(isCrit?'💥':'')+'+'+fmt(gain),cls);
     emitBurst(e.clientX,e.clientY,5,gs.activeEvent?.id==='eclipse'?'rgba(200,50,50,.65)':gs.activeEvent?.id==='invasion'?'rgba(120,50,200,.65)':'rgba(200,160,50,.55)');
+    orbClickBurst(isCrit?12:7);
     this.classList.remove('surge');void this.offsetWidth;this.classList.add('surge');
     setTimeout(()=>this.classList.remove('surge'),480);
   });
@@ -2067,6 +2223,7 @@ function startGame(load=false){
   const intro=document.getElementById('intro-screen');
   if(intro){intro.classList.add('fade-out');setTimeout(()=>{intro.style.display='none';const gr=document.getElementById('game-root');if(gr)gr.classList.add('visible');},800);}
   initCanvas();
+  initOrbCanvas();
   spawnBgParticles();
   _cacheEls();
   initListeners();
